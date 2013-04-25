@@ -11,11 +11,16 @@ test("Juggler init tests", function() {
 	juggler.W = 1;
 	juggler.B = 1;
 	juggler.D = .5;
+	juggler.R = .1;
+	juggler.R_theta_throw = Math.PI;
+	juggler.R_theta_catch = 0;
+	juggler.L_theta_throw = 0;
+	juggler.L_theta_catch = Math.PI;
 	
 	//check some of the defaults
 	ok(juggler.SSW[0] == 3 && juggler.SSW.length == 1, "Default siteswap is [3]");
 	
-	juggler.initJuggler();
+	positions = juggler.initJuggler();
 	
 	ok(
 		juggler.props[0].flight_path == "RL" 
@@ -32,6 +37,8 @@ test("Juggler init tests", function() {
 		&& juggler.props[2].t_catch == 5
 	, "Validate throw/catch times calculated correctly"
 	);
+	
+	//TODO: TEST INIT POSITIONS
 	
 	// test a different siteswap
 	

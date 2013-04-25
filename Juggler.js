@@ -17,6 +17,9 @@ function Juggler() {
 		// clear out props array
 		this.props = []
 		
+		// this will hold the starting positions for each prop
+		positions = [];
+		
 		// initialize each prop, alternating the path
 		for (var i = 0; i < this.N; i++) {
 			ssw = this.SSW.shift();
@@ -27,15 +30,21 @@ function Juggler() {
 				} else {
 					flight_path = "RL";
 				}
+				// prop starting in right hand
+				positions.push([this.W/2+this.R*Math.cos(this.R_theta_throw),this.R*Math.sin(this.R_theta_throw)]);
 			} else {
 				if (ssw % 2 == 0) {
 					flight_path = "LL";
 				} else {
 					flight_path = "LR";
 				}
+				// prop starting in left hand
+				positions.push([-this.W/2+this.R*Math.cos(this.L_theta_throw),this.R*Math.sin(this.L_theta_throw)]);
 			}
 			this.props.push(new Prop(i*this.B+this.D,this.B*(ssw+i),flight_path));
 		}
+		
+		return positions;
 	}
 	
 	this.updateJuggler = function(t) {
@@ -66,11 +75,6 @@ function Juggler() {
 				this.props[i].t_catch = this.props[i].t_throw+ssw*this.B;
 			}
 		}
-	}
-	
-	// returns an array of x/y pairs for each prop
-	this.positions = function(t) {
-		// TODO
 	}
 	
 }

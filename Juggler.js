@@ -12,15 +12,6 @@ function Juggler() {
 	this.R = .1; 	//radius of dwell path
 	this.props = []; 	// the props array is initially empty
 	
-	// helper vars
-	this.V_x = function () { 	// x velocity
-		return this.W/(this.B-this.D);
-	}
-	
-	this.V_y = function () {	// y velocity
-		return -.5*GRAVITY*(this.B-this.D);
-	}
-	
 	this.initJuggler = function () {
 		
 		// clear out props array
@@ -43,8 +34,43 @@ function Juggler() {
 					flight_path = "LR";
 				}
 			}
-			this.props.push(new Prop(i*this.B+this.D,(i+1)*this.B,flight_path));
+			this.props.push(new Prop(i*this.B+this.D,this.B*(ssw+i),flight_path));
 		}
+	}
+	
+	this.updateJuggler = function(t) {
+	
+		//iterate over each prop
+		for (var i = 0; i < this.N; i++) {
+			if ( t > this.props[i].t_catch ) { 
+				// if the ball has been caught, figure out its next throw
+				ssw = this.SSW.shift();
+				this.SSW.push(ssw); // put the ssw at the end of the array
+				// if the previous path ended in the right hand, start from there
+				if (this.props[i].flight_path[1] == "R") {
+					if (ssw % 2 == 0) {
+						flight_path = "RR";
+					} else {
+						flight_path = "RL";
+					}
+				} else {
+					if (ssw % 2 == 0) {
+						flight_path = "LL";
+					} else {
+						flight_path = "LR";
+					}
+				}
+				
+				this.props[i].flight_path = flight_path;
+				this.props[i].t_throw = Math.floor(t/this.B)*this.B+this.D;
+				this.props[i].t_catch = this.props[i].t_throw+ssw*this.B;
+			}
+		}
+	}
+	
+	// returns an array of x/y pairs for each prop
+	this.positions = function(t) {
+		// TODO
 	}
 	
 }

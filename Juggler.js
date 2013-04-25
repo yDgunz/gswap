@@ -12,13 +12,36 @@ function Juggler() {
 	this.R = .1; 	//radius of dwell path
 	this.props = []; 	// the props array is initially empty
 	
+	// calculate some helper vars
+	this.x_R_throw = function() {
+		return this.W/2+this.R*Math.cos(this.R_theta_throw);
+	}
+	this.x_R_catch = function() {
+		return this.W/2+this.R*Math.cos(this.R_theta_catch);
+	}
+	this.x_L_throw = function() { 
+		return -this.W/2+this.R*Math.cos(this.L_theta_throw);
+	}
+	this.x_L_catch = function() {
+		return -this.W/2+this.R*Math.cos(this.L_theta_catch);
+	}
+	this.y_R_throw = function() {
+		return this.R*Math.sin(this.R_theta_throw);
+	}
+	this.y_R_catch = function() {
+		return this.R*Math.sin(this.R_theta_catch);
+	}
+	this.y_L_throw = function() {
+		return this.R*Math.sin(this.L_theta_throw);
+	}
+	this.y_L_catch = function() {
+		return this.R*Math.sin(this.L_theta_catch);
+	}
+	
 	this.initJuggler = function () {
 		
 		// clear out props array
 		this.props = []
-		
-		// this will hold the starting positions for each prop
-		positions = [];
 		
 		// initialize each prop, alternating the path
 		for (var i = 0; i < this.N; i++) {
@@ -31,7 +54,8 @@ function Juggler() {
 					flight_path = "RL";
 				}
 				// prop starting in right hand
-				positions.push([this.W/2+this.R*Math.cos(this.R_theta_throw),this.R*Math.sin(this.R_theta_throw)]);
+				x = this.x_R_throw();
+				y = this.y_R_throw();
 			} else {
 				if (ssw % 2 == 0) {
 					flight_path = "LL";
@@ -39,20 +63,22 @@ function Juggler() {
 					flight_path = "LR";
 				}
 				// prop starting in left hand
-				positions.push([-this.W/2+this.R*Math.cos(this.L_theta_throw),this.R*Math.sin(this.L_theta_throw)]);
+				x = this.x_L_throw();
+				y = this.y_L_throw();
 			}
-			this.props.push(new Prop(i*this.B+this.D,this.B*(ssw+i),flight_path));
+			this.props.push(new Prop(i*this.B+this.D, this.B*(ssw+i), flight_path, x , y));
 		}
 		
-		return positions;
+		return true;
 	}
 	
 	this.updateJuggler = function(t) {
 	
 		//iterate over each prop
 		for (var i = 0; i < this.N; i++) {
+
+			// if the ball has been caught, figure out its next throw		
 			if ( t > this.props[i].t_catch ) { 
-				// if the ball has been caught, figure out its next throw
 				ssw = this.SSW.shift();
 				this.SSW.push(ssw); // put the ssw at the end of the array
 				// if the previous path ended in the right hand, start from there
@@ -74,7 +100,57 @@ function Juggler() {
 				this.props[i].t_throw = Math.floor(t/this.B)*this.B+this.D;
 				this.props[i].t_catch = this.props[i].t_throw+ssw*this.B;
 			}
+			
+			// get the hand the prop is thrown from
+			hand = this.props[i].flight_path[0];
+			
+			// if the throw is in the future, the prop is still in the hand
+			if (this.props[i].t_throw > t) {
+				if(hand == "R") {
+					theta_throw = this.R_theta_throw;
+					theta_catch = this.R_theta_catch;
+					center = this.W/2;
+				} else {
+					theta_throw = this.L_theta_throw;
+					theta_catch = this.L_theta_catch;
+					center = -this.W/2;
+				}
+				
+				theta_t = theta_catch + (theta_throw-theta_catch)/this.D*t;
+				this.props[i].x = center + this.R*Math.cos(theta_t);
+				this.props[i].y = this.R*Math.sin(theta_t);				
+			} 
+			// if the throw is in the past, the prop is still in the air
+			else {
+				if(this.props[i].flight_path == "RL") {
+					x_throw = this.x_R_throw();
+					y_throw = this.y_R_throw();
+					x_catch = this.x_L_catch();
+					y_catch = this.y_L_catch();
+				} else if (this.props[i].flight_path == "RR") {
+					x_throw = this.x_R_throw();
+					y_throw = this.y_R_throw();
+					x_catch = this.x_R_catch();
+					y_catch = this.y_R_catch();
+				} else if (this.props[i].flight_path == "LL") {
+					x_throw = this.x_L_throw();
+					y_throw = this.y_L_throw();
+					x_catch = this.x_L_catch();
+					y_catch = this.y_L_catch();
+				} else {
+					x_throw = this.x_L_throw();
+					y_throw = this.y_L_throw();
+					x_catch = this.x_R_catch();
+					y_catch = this.y_R_catch();
+				}
+				
+				this.props[i].x = x_throw + (x_catch - x_throw)/(this.props[i].t_catch - this.props[i].t_throw)*(t-this.props[i].t_throw);
+				this.props[i].y = y_throw + ((y_catch - y_throw) - .5*GRAVITY*(this.props[i].t_catch-this.props[i].t_throw)*(this.props[i].t_catch-this.props[i].t_throw))/(this.props[i].t_catch-this.props[i].t_throw)*(t-this.props[i].t_throw) + .5*GRAVITY*(t-this.props[i].t_throw)*(t-this.props[i].t_throw);
+			}
+			
 		}
+		
+		return true;
 	}
 	
 }

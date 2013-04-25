@@ -1,0 +1,77 @@
+classes:
+	
+juggle (main class/controller) creates a Juggler and an Animator
+	Juggler (defines environment) references Prop
+		Prop (referred to as ball below)
+	
+
+env:
+	t_0 - time the whole thing started
+	balls - array of balls
+	ssw - pattern array
+	B - beat time
+	W - width of pattern
+	D - dwell time
+	R - radius of arm circles
+	Rth_catch - angle of the right hand catch in radians (must be 0-pi/2)
+	Rth_throw - angle of the right hand throw in radians (must be pi-3pi/2)
+	Lth_catch - angle of the left hand catch in radians (must be pi/2-pi)
+	Lth_throw - angle of the left hand throw in radians (must be 3pi/2-2pi)
+
+ball:
+	t_throw - time of throw, rule: (t_throw - t_0 - D) % B = 0, this will prevent error from propagating
+	t_catch - time of catch, rule: (t_catch - t_0) % B = 0, again preventing error from propagating, catches happen at the end of beats
+	path - describes the path the ball is currently following: R2L, L2R, R2R, L2L
+	active - boolean for whether or not a prop is active yet, defaults to false
+	draw()
+	updatePosition(t) - this needs environment variables, so perhaps it's just an environment method
+	
+initEnv(env)
+
+	for each ball b
+		set b.path, b.t_throw, b.t_catch based on first N (for N balls) items in ssw, alternate path direction
+		shift ssw by N
+	
+	
+updateEnv(env, t)
+
+	for each ball b
+		
+		if t > b.t_catch // if the current time is after the catch, the ball is waiting to be thrown
+			set b.path based on next throw in ssw
+			b.t_throw = b.t_catch + D
+			set b.t_catch based on next throw
+			shift ssw
+			
+		b.updatePosition(t)
+	
+updatePosition(t)
+	
+	//set x,y based on t_throw, t_catch, t and path
+	if t_throw > t && active == true
+		//circular path, figure out which hand based on path
+		th_t = th_catch + (th_throw-th_catch)/D*t
+		X_t = R*cos(th_t)
+		Y_t = R*sin(th_t)
+	if t_throw <= t
+		active = true //only makes a difference once
+		// x velocity direction depends on path
+		X_t = X_throw + W/(B-D) * (t-t_throw)
+		Y_t = Y_throw - .5g*(B-D)*(t-t_throw) + .5g*(t-t_throw)^2
+		
+trace:
+init:
+ball1 - R2L, t_throw = D, t_catch = 3*B, active = false
+ball2 - L2R, t_throw = B+D, t_catch = 2B, active = false
+ball3 - R2L, t_throw = 2B+D, t_catch = 3B, active = false
+
+t < D
+	all balls inactive, nothing happening
+t = D + e
+	ball1 is set as active and the throw starts getting animated
+t = B + e
+	ball1 gets its next throw/catch/path assigned, shift ssw
+	ball1 begins in-hand animation
+t = B + D + e
+	ball1 begins next throw animation
+	ball2 begins throw animation

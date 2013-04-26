@@ -1,18 +1,17 @@
 function Juggler() {
 	
-	this.N = 3; 	// number of balls
-	this.SSW = [3]; 	// siteswap
-	this.W = .5; 	// width of pattern 
-	this.B = 1.0; 	// length of a beat
-	this.D = .5; 	// dwell time
-	this.R_theta_catch = 0; 	//angle of the right hand catch
+	this.N = 3; 					// number of props -- technically you could just get this from the siteswap...
+	this.SSW = [3]; 				// siteswap
+	this.W = 5; 					// width of pattern 
+	this.B = .6; 					// length of a beat
+	this.D = .5; 					// dwell time
+	this.R_theta_catch = 0; 		//angle of the right hand catch
 	this.R_theta_throw = Math.PI;	//angle of the right hand throw
 	this.L_theta_catch = Math.PI; 	//angle of the left hand catch
-	this.L_theta_throw = 0; 	//angle of the left hand throw
-	this.R = .1; 	//radius of dwell path
-	this.props = []; 	// the props array is initially empty
+	this.L_theta_throw = 0; 		//angle of the left hand throw
+	this.R = 1; 					//radius of dwell path
 	
-	// calculate some helper vars
+	// helper functions to return the hand x/y coords for throws and catches
 	this.x_R_throw = function() {
 		return this.W/2+this.R*Math.cos(this.R_theta_throw);
 	}
@@ -98,7 +97,7 @@ function Juggler() {
 				
 				this.props[i].flight_path = flight_path;
 				this.props[i].t_throw = Math.floor(t/this.B)*this.B+this.D;
-				this.props[i].t_catch = this.props[i].t_throw+ssw*this.B;
+				this.props[i].t_catch = Math.floor(t/this.B)*this.B+ssw*this.B;
 			}
 			
 			// get the hand the prop is thrown from
@@ -116,12 +115,14 @@ function Juggler() {
 					center = -this.W/2;
 				}
 				
-				theta_t = theta_catch + (theta_throw-theta_catch)/this.D*t;
+				// this equation still isn't quite right...
+				theta_t = theta_catch - (theta_throw-theta_catch)/this.D*(this.D-this.props[i].t_throw+t);
 				this.props[i].x = center + this.R*Math.cos(theta_t);
 				this.props[i].y = this.R*Math.sin(theta_t);				
 			} 
 			// if the throw is in the past, the prop is still in the air
 			else {
+				this.props[i].active = true;
 				if(this.props[i].flight_path == "RL") {
 					x_throw = this.x_R_throw();
 					y_throw = this.y_R_throw();

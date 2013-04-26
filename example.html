@@ -1,0 +1,30 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+	<title>gswap-js Example</title>
+</head>
+<body>
+
+<div id="controlsContainer">
+	<button onclick="startTime = (new Date()).getTime(); juggler.initJuggler();">GO!</button></br>
+	<input id="in_N" type="N" value="3" />
+</div>
+<div id="dataContainer">
+	<table id="propsDataTable">
+		<th id="propsDataTableHeader" />
+		<tr id="propsX" />
+		<tr id="propsY" />
+	</table>
+</div>
+<div id="canvasContainer">
+	<canvas id="jugglerCanvas" width="400" height="600"></canvas>
+</div>
+
+</body>
+
+<script src="Prop.js"></script>
+<script src="Juggler.js"></script>
+<script src="Animator.js"></script>
+
+</html>

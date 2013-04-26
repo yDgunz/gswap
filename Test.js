@@ -1,4 +1,16 @@
+//TO DO
+// make a function that creates the new juggler and call from within each test
+
 GRAVITY = -9.8;
+
+test("Prop tests", function() {
+	var prop = new Prop(1, 2, 'R2L')
+	ok(prop.t_throw == 1);
+	ok(prop.t_catch == 2);
+	ok(prop.flight_path == 'R2L')
+});
+  
+test("Juggler init tests", function() {
 
 var juggler = new Juggler();
 
@@ -10,15 +22,6 @@ juggler.R_theta_throw = Math.PI;
 juggler.R_theta_catch = 0;
 juggler.L_theta_throw = 0;
 juggler.L_theta_catch = Math.PI;
-
-test("Prop tests", function() {
-	var prop = new Prop(1, 2, 'R2L')
-	ok(prop.t_throw == 1);
-	ok(prop.t_catch == 2);
-	ok(prop.flight_path == 'R2L')
-});
-  
-test("Juggler init tests", function() {
 	
 	//check some of the defaults
 	ok(juggler.SSW[0] == 3 && juggler.SSW.length == 1, "Default siteswap is [3]");
@@ -73,6 +76,18 @@ test("Juggler init tests", function() {
 });
 
 test("Juggler update tests", function() {
+
+var juggler = new Juggler();
+
+juggler.W = 1;
+juggler.B = 1;
+juggler.D = .5;
+juggler.R = .1;
+juggler.R_theta_throw = Math.PI;
+juggler.R_theta_catch = 0;
+juggler.L_theta_throw = 0;
+juggler.L_theta_catch = Math.PI;
+
 	
 	juggler.initJuggler();
 	
@@ -81,8 +96,7 @@ test("Juggler update tests", function() {
 	
 	ok(juggler.props[0].t_throw == 3.5, "Next throw calculated correctly");
 	ok(juggler.props[0].t_catch == 6.5, "Next catch calculated correctly");
-	
-	
+
 	juggler.updateJuggler(3.5);
 	juggler.updateJuggler(4.1);
 	

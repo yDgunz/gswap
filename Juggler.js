@@ -1,19 +1,19 @@
-function Juggler() {
+function Juggler(N, SSW, W, B, D, D_R_r, D_R_l, D_TH_c_r, D_TH_t_r, D_TH_c_l, D_TH_t_l, H, G, R) {
 	
-	this.N = 6; 					// number of props -- technically you could just get this from the siteswap...
-	this.SSW = [6]; 				// siteswap
-	this.W = 1; 					// width of pattern 
-	this.B = .3; 					// length of a beat
-	this.D = .2; 					// dwell time
-	this.D_R_r = .2; 				//radius of dwell path
-	this.D_R_l = .2; 				//radius of dwell path
-	this.D_TH_c_r = 0; 				//angle of the right hand catch
-	this.D_TH_t_r = Math.PI;		//angle of the right hand throw
-	this.D_TH_c_l = Math.PI; 		//angle of the left hand catch
-	this.D_TH_t_l = 0; 				//angle of the left hand throw
-	this.H = 1;						//height of the juggler
-	this.G = -9.8;					//gravity
-	this.R = .1; 					// prop radius
+	this.N = N; 					// number of props -- technically you could just get this from the siteswap...
+	this.SSW = SSW; 				// siteswap
+	this.W = W; 					// width of pattern 
+	this.B = B; 					// length of a beat
+	this.D = D; 					// dwell time
+	this.D_R_r = D_R_r; 			//radius of dwell path
+	this.D_R_l = D_R_l; 			//radius of dwell path
+	this.D_TH_c_r = D_TH_c_r; 		//angle of the right hand catch
+	this.D_TH_t_r = D_TH_t_r;		//angle of the right hand throw
+	this.D_TH_c_l = D_TH_c_l; 		//angle of the left hand catch
+	this.D_TH_t_l = D_TH_t_l; 		//angle of the left hand throw
+	this.H = H;						//height of the juggler
+	this.G = G;						//gravity
+	this.R = R; 					// prop radius
 	
 	// helper functions to return the hand x/y coords for throws and catches
 	this.D_X_t_r = function() {
@@ -41,7 +41,7 @@ function Juggler() {
 		return this.H+this.D_R_l*Math.sin(this.D_TH_c_l);
 	}
 	
-	this.initJuggler = function () {
+	this.init_juggler = function () {
 		
 		// clear out props array
 		this.props = []
@@ -75,7 +75,7 @@ function Juggler() {
 		return true;
 	}
 	
-	this.updateJuggler = function(t) {
+	this.update_juggler = function(t) {
 	
 		//iterate over each prop
 		for (var i = 0; i < this.N; i++) {

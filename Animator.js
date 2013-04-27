@@ -32,7 +32,7 @@ function animate(canvas) {
 	
 	var t = ((new Date()).getTime()-startTime)/1000*T_s;//-startTime;
 	
-	juggler.updateJuggler(t);
+	juggler.update_juggler(t);
 	
 	//clear the screen
 	context.clearRect(0,0,400,600);
@@ -70,31 +70,33 @@ function animate(canvas) {
 // wait a bit, then run the sim (eventaully replace with a button click?)
 function startJuggling() {
 	startTime = (new Date()).getTime();
-	juggler = new Juggler();
 	
-	juggler.N = document.getElementById("in_N").value;
+	N = document.getElementById("in_N").value;
 	SSWtmp = document.getElementById("in_SSW").value.split(",");
 	SSW = [];
 	for (var i = 0; i < SSWtmp.length; i++) {
 		SSW.push(parseInt(SSWtmp[i]));
 	}
-	juggler.SSW = SSW;
-	juggler.W = parseFloat(document.getElementById("in_W").value);
-	juggler.B = parseFloat(document.getElementById("in_B").value);
-	juggler.D = parseFloat(document.getElementById("in_D").value);
-	juggler.D_R_r = parseFloat(document.getElementById("in_D_R_r").value);
-	juggler.D_R_l = parseFloat(document.getElementById("in_D_R_l").value);
-	juggler.D_TH_c_r = parseFloat(document.getElementById("in_D_TH_c_r").value);
-	juggler.D_TH_t_r = parseFloat(document.getElementById("in_D_TH_t_r").value);
-	juggler.D_TH_c_l = parseFloat(document.getElementById("in_D_TH_c_l").value);
-	juggler.D_TH_t_l = parseFloat(document.getElementById("in_D_TH_t_l").value);
-	juggler.H = parseFloat(document.getElementById("in_H").value);
-	juggler.G = parseFloat(document.getElementById("in_G").value);
-	juggler.R = parseFloat(document.getElementById("in_R").value);
+	W = parseFloat(document.getElementById("in_W").value);
+	B = parseFloat(document.getElementById("in_B").value);
+	D = parseFloat(document.getElementById("in_D").value);
+	D_R_r = parseFloat(document.getElementById("in_D_R_r").value);
+	D_R_l = parseFloat(document.getElementById("in_D_R_l").value);
+	D_TH_c_r = parseFloat(document.getElementById("in_D_TH_c_r").value);
+	D_TH_t_r = parseFloat(document.getElementById("in_D_TH_t_r").value);
+	D_TH_c_l = parseFloat(document.getElementById("in_D_TH_c_l").value);
+	D_TH_t_l = parseFloat(document.getElementById("in_D_TH_t_l").value);
+	H = parseFloat(document.getElementById("in_H").value);
+	G = parseFloat(document.getElementById("in_G").value);
+	R = parseFloat(document.getElementById("in_R").value);
+	
+	juggler = new Juggler(N, SSW, W, B, D, D_R_r, D_R_l, D_TH_c_r, D_TH_t_r, D_TH_c_l, D_TH_t_l, H, G, R);
+	
 	W_j = parseFloat(document.getElementById("in_W_j").value);
 	T_s = parseFloat(document.getElementById("in_T_s").value);
 	
-	juggler.initJuggler();
+	juggler.init_juggler();
+	
 	var canvas = document.getElementById('jugglerCanvas');
 	animate(canvas);
 }

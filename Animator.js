@@ -1,9 +1,11 @@
+// Animator environment vars, eventually if Animator is a class these will be fields for it
 var colors = ["red", "green", "blue", "yellow", "teal", "pink", "grey"]
 var juggler;
-var W_j = 5; // juggler environment width in m
-var H_v = document.getElementById("jugglerCanvas").height; // height of the viewport in px
-var W_v = document.getElementById("jugglerCanvas").width;  // width of the viewport in px
-var T_s = 1;
+var W_j; // juggler environment width in m
+var canvas = document.getElementById("jugglerCanvas");
+var H_v = canvas.height; // height of the viewport in px
+var W_v = canvas.width;  // width of the viewport in px
+var T_s;
 
 //calculate x/y in juggler's coordinates to x/y in viewport coordinates 
 function x_v (x_j) {
@@ -12,7 +14,6 @@ function x_v (x_j) {
 function y_v (y_j) {
 	return H_v - W_v/W_j - W_v/W_j*y_j;
 }
-
 function prop_r_v (prop_r_j) {
 	return prop_r_j*W_v/W_j;
 }
@@ -35,18 +36,8 @@ function animate(canvas) {
 	juggler.update_juggler(t);
 	
 	//clear the screen
-	context.clearRect(0,0,400,600);
 	context.fillStyle = "#eeeeee"
 	context.fillRect(0,0,400,600);
-	
-	// write some text
-	context.font = '10pt Calibri';
-	context.fillStyle = "blue";	
-	
-	context.fillText(t, 20, 20);
-	context.fillText("Red - throw: " + juggler.props[0].t_t + ", catch: " + juggler.props[0].t_c, 20, 40); 
-	context.fillText("Green - throw: " + juggler.props[1].t_t + ", catch: " + juggler.props[1].t_c, 20, 60);
-	context.fillText("Blue - throw: " + juggler.props[2].t_t + ", catch: " + juggler.props[2].t_c, 20, 80);
 	
 	// draw all the juggler's props
 	for (var i = 0; i < juggler.props.length; i++) {
@@ -67,7 +58,7 @@ function animate(canvas) {
 	});
  }
   
-// wait a bit, then run the sim (eventaully replace with a button click?)
+// function called by the GO button
 function startJuggling() {
 	startTime = (new Date()).getTime();
 	

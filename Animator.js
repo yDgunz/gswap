@@ -12,7 +12,7 @@ function x_v (x_j) {
 	return W_v/2 + W_v/W_j*x_j;
 }
 function y_v (y_j) {
-	return H_v - W_v/W_j - W_v/W_j*y_j;
+	return H_v - W_v/W_j*y_j;
 }
 function prop_r_v (prop_r_j) {
 	return prop_r_j*W_v/W_j;
@@ -39,6 +39,34 @@ function animate(canvas) {
 	context.fillStyle = "#eeeeee"
 	context.fillRect(0,0,400,600);
 	
+	// draw the juggler
+	
+	//body
+	context.strokeStyle = "black";
+	context.beginPath();
+	context.moveTo(x_v(0),y_v(0));
+	context.lineTo(x_v(0),y_v(1.5*H));
+	context.lineWidth = 5;
+	context.stroke();
+	
+	//head
+	context.beginPath();
+	context.arc(x_v(0),y_v(1.5*H),prop_r_v(.2),0,2*Math.PI,true);
+	context.closePath();
+	context.fillStyle = "black";
+	context.fill();
+	
+	//shoulders
+	context.beginPath();
+	context.moveTo(x_v(0),y_v(1.25*H));
+	context.lineTo(x_v(-juggler.W/5),y_v(1.2*H));
+	context.lineTo(x_v(-juggler.W/2),y_v(H));
+	context.moveTo(x_v(0),y_v(1.25*H));
+	context.lineTo(x_v(juggler.W/5),y_v(1.2*H));
+	context.lineTo(x_v(juggler.W/2),y_v(H));
+	context.lineWidth = 5;
+	context.stroke();	
+	
 	// draw all the juggler's props
 	for (var i = 0; i < juggler.props.length; i++) {
 		color = colors[i];
@@ -59,7 +87,7 @@ function animate(canvas) {
  }
   
 // function called by the GO button
-function startJuggling() {
+function start_juggling() {
 	startTime = (new Date()).getTime();
 	
 	N = document.getElementById("in_N").value;
@@ -80,8 +108,10 @@ function startJuggling() {
 	H = parseFloat(document.getElementById("in_H").value);
 	G = parseFloat(document.getElementById("in_G").value);
 	R = parseFloat(document.getElementById("in_R").value);
+	D_TH_dir_r = parseInt(document.getElementById("in_D_TH_dir_r").value);
+	D_TH_dir_l = parseInt(document.getElementById("in_D_TH_dir_l").value);
 	
-	juggler = new Juggler(N, SSW, W, B, D, D_R_r, D_R_l, D_TH_c_r, D_TH_t_r, D_TH_c_l, D_TH_t_l, H, G, R);
+	juggler = new Juggler(N, SSW, W, B, D, D_R_r, D_R_l, D_TH_c_r, D_TH_t_r, D_TH_c_l, D_TH_t_l, H, G, R, D_TH_dir_r, D_TH_dir_l);
 	
 	W_j = parseFloat(document.getElementById("in_W_j").value);
 	T_s = parseFloat(document.getElementById("in_T_s").value);

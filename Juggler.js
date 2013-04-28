@@ -1,4 +1,4 @@
-function Juggler(N, SSW, W, B, D, D_R_r, D_R_l, D_TH_c_r, D_TH_t_r, D_TH_c_l, D_TH_t_l, H, G, R) {
+function Juggler(N, SSW, W, B, D, D_R_r, D_R_l, D_TH_c_r, D_TH_t_r, D_TH_c_l, D_TH_t_l, H, G, R, D_TH_dir_r, D_TH_dir_l) {
 	
 	this.N = N; 					// number of props -- technically you could just get this from the siteswap...
 	this.SSW = SSW; 				// siteswap
@@ -13,7 +13,9 @@ function Juggler(N, SSW, W, B, D, D_R_r, D_R_l, D_TH_c_r, D_TH_t_r, D_TH_c_l, D_
 	this.D_TH_t_l = D_TH_t_l; 		//angle of the left hand throw
 	this.H = H;						//height of the juggler
 	this.G = G;						//gravity
-	this.R = R; 					// prop radius
+	this.R = R; 					//prop radius
+	this.D_TH_dir_r = D_TH_dir_r; 	//direction of right hand dwell (1 = CCW, -1 = CW)
+	this.D_TH_dir_l = D_TH_dir_l;	//direction of left hand dwell
 	
 	// helper functions to return the hand x/y coords for throws and catches
 	this.D_X_t_r = function() {
@@ -112,13 +114,15 @@ function Juggler(N, SSW, W, B, D, D_R_r, D_R_l, D_TH_c_r, D_TH_t_r, D_TH_c_l, D_
 				if(hand == "R") {
 					theta_throw = this.D_TH_t_r;
 					theta_catch = this.D_TH_c_r;
-					v_theta = (theta_catch-theta_throw)/this.D;
+					v_theta = Math.abs(2*Math.PI-(theta_throw-theta_catch))/this.D;
+					v_theta = v_theta*this.D_TH_dir_r;
 					R = this.D_R_r;
 					center = this.W/2;
 				} else {
 					theta_throw = this.D_TH_t_l;
 					theta_catch = this.D_TH_c_l;
-					v_theta = (theta_catch-theta_throw)/this.D;
+					v_theta = Math.abs(theta_throw-theta_catch)/this.D;
+					v_theta = v_theta*this.D_TH_dir_l;
 					R = this.D_R_l;
 					center = -this.W/2;
 				}

@@ -3,43 +3,44 @@
 <head>
 <meta charset="utf-8">
 	<title>gswap-js Example</title>
+	<!-- <link href="bootstrap/css/bootstrap.min.css" rel="stylesheet" media="screen"> -->
+	<link href="example.css" rel="stylesheet">
 </head>
 <body>
 
-<div id="controlsContainer">
-	<button onclick="startJuggling();">GO!</button></br>
-	N: <input id="in_N" type="N" value="3" />
-	SSW: <input id="in_SSW" value="3" />
-	W: <input id="in_W" value="1" />
-	<br/>
-	B: <input id="in_B" value=".3" />
-	D: <input id="in_D" value=".2" />
-	<br/>
-	D_R_r: <input id="in_D_R_r" value=".2" />
-	D_R_l: <input id="in_D_R_l" value=".2" />
-	<br/>
-	D_TH_c_r: <input id="in_D_TH_c_r" value="0" />
-	D_TH_t_r: <input id="in_D_TH_t_r" value="3.14" />
-	<br/>
-	D_TH_c_l: <input id="in_D_TH_c_l" value="3.14" />
-	D_TH_t_l: <input id="in_D_TH_t_l" value="0" />
-	<br/>
-	H: <input id="in_H" value="1" />
-	G: <input id="in_G" value="-9.8" />
-	R: <input id="in_R" value=".1" />
-	<br/>
-	W_j: <input id="in_W_j" value="5" />
-	T_s: <input id="in_T_s" value="1" />
-</div>
-<div id="dataContainer">
-	<table id="propsDataTable">
-		<th id="propsDataTableHeader" />
-		<tr id="propsX" />
-		<tr id="propsY" />
-	</table>
-</div>
-<div id="canvasContainer">
-	<canvas id="jugglerCanvas" width="400" height="600"></canvas>
+<!--
+<script src="jquery-1.9.1.js"></script>
+<script src="bootstrap/js/bootstrap.js"></script>
+-->
+
+<div id="mainContainer">
+	<div id="controlsContainer">
+		<button onclick="start_juggling();">GO!</button>
+		<br/>
+		<table id="controls">
+			<tr><td>N</td><td><input id="in_N" type="N" value="3" /></td></tr>
+			<tr><td>SSW</td><td><input id="in_SSW" value="3" /></td></tr>
+			<tr><td>W</td><td><input id="in_W" value="1" /></td></tr>
+			<tr><td>B</td><td><input id="in_B" value=".3" /></td></tr>
+			<tr><td>D</td><td><input id="in_D" value=".2" /></td></tr>
+			<tr><td>D_R_r</td><td><input id="in_D_R_r" value=".2" /></td></tr>
+			<tr><td>D_R_l</td><td><input id="in_D_R_l" value=".2" /></td></tr>
+			<tr><td>D_TH_c_r</td><td><input id="in_D_TH_c_r" value="0" /></td></tr>
+			<tr><td>D_TH_t_r</td><td><input id="in_D_TH_t_r" value="3.14" /></td></tr>
+			<tr><td>D_TH_dir_r</td><td><input id="in_D_TH_dir_r" value="-1" /></td></tr>
+			<tr><td>D_TH_c_l</td><td><input id="in_D_TH_c_l" value="3.14" /></td></tr>
+			<tr><td>D_TH_t_l</td><td><input id="in_D_TH_t_l" value="0" /></td></tr>
+			<tr><td>D_TH_dir_l</td><td><input id="in_D_TH_dir_l" value="1" /></td></tr>
+			<tr><td>H</td><td><input id="in_H" value="1" /></td></tr>
+			<tr><td>G</td><td><input id="in_G" value="-9.8" /></td></tr>
+			<tr><td>R</td><td><input id="in_R" value=".1" /></td></tr>
+			<tr><td>W_j</td><td><input id="in_W_j" value="3" /></td></tr>
+			<tr><td>T_s</td><td><input id="in_T_s" type="text" value="1" /></td></tr>
+		</table>
+	</div>
+	<div id="canvasContainer">
+		<canvas id="jugglerCanvas" width="400" height="600"></canvas>
+	</div>
 </div>
 
 </body>

@@ -112,22 +112,20 @@ function Juggler(N, SSW, W, B, D, D_R_r, D_R_l, D_TH_c_r, D_TH_t_r, D_TH_c_l, D_
 			// if the throw is in the future, the prop is still in the hand
 			if (this.props[i].t_t > t) {
 				if(hand == "R") {
-					theta_throw = this.D_TH_t_r;
-					theta_catch = this.D_TH_c_r;
-					v_theta = Math.abs(2*Math.PI-(theta_throw-theta_catch))/this.D;
-					v_theta = v_theta*this.D_TH_dir_r;
+					theta_throw = 2*Math.PI*this.D_TH_dir_r+this.D_TH_t_r;
+					theta_catch = this.D_TH_c_r;					
+					v_theta = (theta_throw-theta_catch)/this.D;
 					R = this.D_R_r;
 					center = this.W/2;
 				} else {
 					theta_throw = this.D_TH_t_l;
 					theta_catch = this.D_TH_c_l;
-					v_theta = Math.abs(theta_throw-theta_catch)/this.D;
-					v_theta = v_theta*this.D_TH_dir_l;
+					v_theta = (theta_throw-theta_catch)/this.D;
 					R = this.D_R_l;
 					center = -this.W/2;
 				}
 				
-				theta_t = theta_catch + v_theta*(this.D-this.props[i].t_t+t);
+				theta_t = theta_catch + v_theta*(t-this.props[i].t_t+this.D);
 				this.props[i].x = center + R*Math.cos(theta_t);
 				this.props[i].y = this.H+R*Math.sin(theta_t);				
 			} 
@@ -165,4 +163,27 @@ function Juggler(N, SSW, W, B, D, D_R_r, D_R_l, D_TH_c_r, D_TH_t_r, D_TH_c_l, D_
 		return true;
 	}
 	
+}
+
+function validate_ssw(N,ssw) {
+	//checks if the given ssw is valid for the number of props N
+
+	sum = 0;
+	land = []; //keeps track of when throws land
+	
+	for (var i = 0; i < ssw.length; i++) {
+		if (land[i+ssw[i]] == 1) {
+			return false;
+		}
+		land[i+ssw[i]] = 1;
+		sum += ssw[i];
+	}
+	
+	if (sum/ssw.length != N) {
+		return false;
+	}
+	
+	
+	return true;
+
 }

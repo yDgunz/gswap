@@ -114,3 +114,16 @@ test("Juggler update tests", function() {
 	ok(juggler.props[1].t_t == 9 && juggler.props[1].t_c == 14, "Next throw/catch calculated correctly again");	
 	
 });
+
+test("Siteswap validator tests", function() {
+	
+	ssw = [4,4,1];
+	ok(validate_ssw(3,ssw), "441 is a valid siteswap for 3 props");
+	ok(!validate_ssw(4,ssw), "441 is an invalid siteswap for 4 props");
+	
+	ssw=[5,4,1];
+	ok(!validate_ssw(3,ssw), "541 is an invalid siteswap for 3 props");
+	
+	ssw=[5,3,1];
+	ok(validate_ssw(3,ssw), "531 is a valid siteswap for 3 props");
+});

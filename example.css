@@ -16,3 +16,7 @@
 input {
 	width: 100px;
 }
+
+#validationMsgs {
+	color: Red;
+}

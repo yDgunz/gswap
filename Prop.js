@@ -1,18 +1,17 @@
-/* defining flight_path constants */
-var R2L = 1;
-var R2R = 2;
-var L2L = 3;
-var L2R = 4;
-
-function Prop(t_t, t_c, flight_path, x, y, R) {
+function Prop(t_throw, t_catch, flight_path, x, y, dx, dy, R, ssw_index) {
 	
-	/* initialization for props */
-	this.t_t = t_t;
-	this.t_c = t_c;
+	/* static attributes */
+	this.R = R;
+	
+	/* dynamic attributes */
+	this.t_throw = t_throw;
+	this.t_catch = t_catch;
 	this.flight_path = flight_path;
 	this.x = x;
 	this.y = y;
+	this.dx = dx;
+	this.dy = dy;
 	this.active = false;
-	this.R = R;
+	this.ssw_index = ssw_index;
 	
 }

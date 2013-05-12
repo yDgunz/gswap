@@ -1,5 +1,5 @@
 // Animator environment vars, eventually if Animator is a class these will be fields for it
-var colors = ["red", "green", "blue", "yellow", "teal", "pink", "grey"]
+var colors = ["red", "green", "blue"]
 var juggler;
 var W_j; // juggler environment width in m
 var canvas = document.getElementById("jugglerCanvas");
@@ -39,33 +39,12 @@ function animate(canvas) {
 	context.fillStyle = "#eeeeee"
 	context.fillRect(0,0,400,600);
 	
-	// draw the juggler
+	//write some stats
+	context.fillStyle = "blue";
+	context.fillText(t.toFixed(1), 20, 20);
+	context.fillText(juggler.dt.toFixed(3), 20, 40);
+	context.fillText(juggler.next_ssw_index, 20, 60);
 	
-	//body
-	context.strokeStyle = "black";
-	context.beginPath();
-	context.moveTo(x_v(0),y_v(0));
-	context.lineTo(x_v(0),y_v(1.5*H));
-	context.lineWidth = 5;
-	context.stroke();
-	
-	//head
-	context.beginPath();
-	context.arc(x_v(0),y_v(1.5*H),prop_r_v(.2),0,2*Math.PI,true);
-	context.closePath();
-	context.fillStyle = "black";
-	context.fill();
-	
-	//shoulders
-	context.beginPath();
-	context.moveTo(x_v(0),y_v(1.25*H));
-	context.lineTo(x_v(-juggler.W/5),y_v(1.2*H));
-	context.lineTo(x_v(-juggler.W/2),y_v(H));
-	context.moveTo(x_v(0),y_v(1.25*H));
-	context.lineTo(x_v(juggler.W/5),y_v(1.2*H));
-	context.lineTo(x_v(juggler.W/2),y_v(H));
-	context.lineWidth = 5;
-	context.stroke();	
 	
 	// draw all the juggler's props
 	for (var i = 0; i < juggler.props.length; i++) {
@@ -77,6 +56,7 @@ function animate(canvas) {
 			context.arc(x_v(juggler.props[i].x),y_v(juggler.props[i].y),prop_r_v(juggler.props[i].R),0,Math.PI*2,true); 
 			context.closePath();
 			context.fill();
+			context.fillText("Ball\t" + (i+1) + " SSW_index: " + juggler.props[i].ssw_index + " pos:(" + juggler.props[i].x.toFixed(1) + "," + juggler.props[i].y.toFixed(1) + ") vel:(" + juggler.props[i].dx.toFixed(1) + "," + juggler.props[i].dy.toFixed(1) + ") Tt: " + juggler.props[i].t_throw.toFixed(1) + "Tc " + juggler.props[i].t_catch.toFixed(1), 20, (80+20*i));
 		}
 	}
 	
@@ -88,13 +68,14 @@ function animate(canvas) {
   
 // function called by the GO button
 function start_juggling() {
+	
 	startTime = (new Date()).getTime();
 	
 	N = document.getElementById("in_N").value;
 	SSWtmp = document.getElementById("in_SSW").value.split(",");
 	SSW = [];
 	for (var i = 0; i < SSWtmp.length; i++) {
-		SSW.push(parseInt(SSWtmp[i]));
+		SSW.push(SSWtmp[i]);
 	}
 	W = parseFloat(document.getElementById("in_W").value);
 	B = parseFloat(document.getElementById("in_B").value);
@@ -110,14 +91,34 @@ function start_juggling() {
 	R = parseFloat(document.getElementById("in_R").value);
 	D_TH_dir_r = parseInt(document.getElementById("in_D_TH_dir_r").value);
 	D_TH_dir_l = parseInt(document.getElementById("in_D_TH_dir_l").value);
+	C = parseFloat(document.getElementById("in_C").value);
 	
-	juggler = new Juggler(N, SSW, W, B, D, D_R_r, D_R_l, D_TH_c_r, D_TH_t_r, D_TH_c_l, D_TH_t_l, H, G, R, D_TH_dir_r, D_TH_dir_l);
+
+	//create validation error messages
+	validation_msgs = [];
+	if (!validate_ssw(N, SSW))
+		validation_msgs.push("Invalid siteswap");
+	if (D >= B)
+		validation_msgs.push("Dwell must be less than beat");
+	if (H < 0)
+		validation_msgs.push("Height must be > 0");
+
+	//validate the siteswap
+	if (validation_msgs.length > 0) {
+		validation_html = "";
+		for (i = 0; i < validation_msgs.length; i++)
+			validation_html += (validation_msgs[i] + "<br/>");
+		document.getElementById("validationMsgs").innerHTML = validation_html;
+	} else {
 	
-	W_j = parseFloat(document.getElementById("in_W_j").value);
-	T_s = parseFloat(document.getElementById("in_T_s").value);
-	
-	juggler.init_juggler();
-	
-	var canvas = document.getElementById('jugglerCanvas');
-	animate(canvas);
+		juggler = new Juggler(N, SSW, W, B, D, D_R_r, D_R_l, D_TH_c_r, D_TH_t_r, D_TH_c_l, D_TH_t_l, H, G, R, D_TH_dir_r, D_TH_dir_l, C);
+		
+		W_j = parseFloat(document.getElementById("in_W_j").value);
+		T_s = parseFloat(document.getElementById("in_T_s").value);
+		
+		juggler.init_juggler();
+		
+		var canvas = document.getElementById('jugglerCanvas');
+		animate(canvas);
+	}
 }

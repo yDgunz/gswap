@@ -8,6 +8,7 @@
 <body>
 
 <script src="jquery-1.9.1.js"></script>
+<script src="three.min.js"></script>
 
 <div id="mainContainer">
 	<div id="controlsContainer">
@@ -34,10 +35,12 @@
 			<tr><td>W_j</td><td><input id="in_W_j" value="3" /></td></tr>
 			<tr><td>T_s</td><td><input id="in_T_s" type="text" value="1" /></td></tr>
 			<tr><td>C</td><td><input id="in_C" type="text" value=".95" /></td></tr>
+			<tr><td>Camera-X</td><td><input id="in_cam_x" value="0" /></td></tr>
+			<tr><td>Camera-Y</td><td><input id="in_cam_y" value="1" /></td></tr>
+			<tr><td>Camera-Z</td><td><input id="in_cam_z" value="4" /></td></tr>
 		</table>
 	</div>
-	<div id="canvasContainer">
-		<canvas id="jugglerCanvas" width="400" height="600"></canvas>
+	<div id="canvasContainer">		
 	</div>
 </div>
 
@@ -45,6 +48,6 @@
 
 <script src="Prop.js"></script>
 <script src="Juggler.js"></script>
-<script src="Animator.js"></script>
+<script src="3DAnimator.js"></script>
 
 </html>

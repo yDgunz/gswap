@@ -1,0 +1,23 @@
+#controlsContainer {
+	position: absolute;
+	text-align: left;
+}
+
+#statsContainer {
+	position: absolute;
+	right: 500px;
+	text-align: left;
+}
+
+
+input, button {
+	width: 100%;
+}
+
+#validationMsgs {
+	color: Red;
+}
+
+body {
+	background-color: lightgrey;
+}

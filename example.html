@@ -3,48 +3,57 @@
 <head>
 <meta charset="utf-8">
 	<title>gswap-js Example</title>
-	<link href="example.css" rel="stylesheet">
+	<link href="css/example.css" rel="stylesheet">
 </head>
 <body>
 
-<script src="jquery-1.9.1.js"></script>
+<script src="js/jquery-1.9.1.js"></script>
+<script src="js/three.min.js"></script>
 
-<div id="mainContainer">
-	<div id="controlsContainer">
-		<div id="validationMsgs"></div>
-		<button onclick="start_juggling();">GO!</button>
-		<br/>
-		<table id="controls">
-			<tr><td>N</td><td><input id="in_N" type="N" value="3" /></td></tr>
-			<tr><td>SSW</td><td><input id="in_SSW" value="3" /></td></tr>
-			<tr><td>W</td><td><input id="in_W" value="1" /></td></tr>
-			<tr><td>B</td><td><input id="in_B" value=".3" /></td></tr>
-			<tr><td>D</td><td><input id="in_D" value=".2" /></td></tr>
-			<tr><td>D_R_r</td><td><input id="in_D_R_r" value=".2" /></td></tr>
-			<tr><td>D_R_l</td><td><input id="in_D_R_l" value=".2" /></td></tr>
-			<tr><td>D_TH_c_r</td><td><input id="in_D_TH_c_r" value="0" /></td></tr>
-			<tr><td>D_TH_t_r</td><td><input id="in_D_TH_t_r" value="3.14" /></td></tr>
-			<tr><td>D_TH_dir_r</td><td><input id="in_D_TH_dir_r" value="-1" /></td></tr>
-			<tr><td>D_TH_c_l</td><td><input id="in_D_TH_c_l" value="3.14" /></td></tr>
-			<tr><td>D_TH_t_l</td><td><input id="in_D_TH_t_l" value="6.28" /></td></tr>
-			<tr><td>D_TH_dir_l</td><td><input id="in_D_TH_dir_l" value="1" /></td></tr>
-			<tr><td>H</td><td><input id="in_H" value="1" /></td></tr>
-			<tr><td>G</td><td><input id="in_G" value="-9.8" /></td></tr>
-			<tr><td>R</td><td><input id="in_R" value=".1" /></td></tr>
-			<tr><td>W_j</td><td><input id="in_W_j" value="3" /></td></tr>
-			<tr><td>T_s</td><td><input id="in_T_s" type="text" value="1" /></td></tr>
-			<tr><td>C</td><td><input id="in_C" type="text" value=".95" /></td></tr>
-		</table>
-	</div>
-	<div id="canvasContainer">
-		<canvas id="jugglerCanvas" width="400" height="600"></canvas>
-	</div>
+<div id="controlsContainer">
+	<div id="validationMsgs"></div>
+	<button onclick="start_juggling();">GO!</button>
+	<br/>
+	<table id="controls">
+		<tr><td>N</td><td><input id="in_N" type="N" value="3" /></td></tr>
+		<tr><td>SSW</td><td><input id="in_SSW" value="3" /></td></tr>
+		<tr><td>W</td><td><input id="in_W" value="1" /></td></tr>
+		<tr><td>B</td><td><input id="in_B" value=".3" /></td></tr>
+		<tr><td>D</td><td><input id="in_D" value=".2" /></td></tr>
+		<tr><td>D_R_r</td><td><input id="in_D_R_r" value=".2" /></td></tr>
+		<tr><td>D_R_l</td><td><input id="in_D_R_l" value=".2" /></td></tr>
+		<tr><td>D_TH_c_r</td><td><input id="in_D_TH_c_r" value="0" /></td></tr>
+		<tr><td>D_TH_t_r</td><td><input id="in_D_TH_t_r" value="3.14" /></td></tr>
+		<tr><td>D_TH_dir_r</td><td><input id="in_D_TH_dir_r" value="-1" /></td></tr>
+		<tr><td>D_TH_c_l</td><td><input id="in_D_TH_c_l" value="3.14" /></td></tr>
+		<tr><td>D_TH_t_l</td><td><input id="in_D_TH_t_l" value="6.28" /></td></tr>
+		<tr><td>D_TH_dir_l</td><td><input id="in_D_TH_dir_l" value="1" /></td></tr>
+		<tr><td>H</td><td><input id="in_H" value="1" /></td></tr>
+		<tr><td>G</td><td><input id="in_G" value="-9.8" /></td></tr>
+		<tr><td>R</td><td><input id="in_R" value=".1" /></td></tr>
+		<tr><td>W_j</td><td><input id="in_W_j" value="3" /></td></tr>
+		<tr><td>T_s</td><td><input id="in_T_s" type="text" value="1" /></td></tr>
+		<tr><td>C</td><td><input id="in_C" type="text" value=".95" /></td></tr>
+		<tr><td>Cam theta</td><td><input id="in_cam_theta" value="0" /></td></tr>
+		<tr><td>Cam phi</td><td><input id="in_cam_phi" value=".3" /></td></tr>
+		<tr><td>Cam radius</td><td><input id="in_cam_r" value="4" /></td></tr>
+	</table>
+</div>
+
+<div id="statsContainer">
+	<table id="stats">
+		<tr><td>Update juggler:</td><td><span id="update_juggler_time"></span>ms</td></tr>
+		<tr><td>Render juggler:</td><td><span id="render_time"></span>ms</td></tr>
+	</table>
+</div>
+
+<div id="canvasContainer">		
 </div>
 
 </body>
 
-<script src="Prop.js"></script>
-<script src="Juggler.js"></script>
-<script src="Animator.js"></script>
+<script src="js/Prop.js"></script>
+<script src="js/Juggler.js"></script>
+<script src="js/Animator.js"></script>
 
 </html>

@@ -2,20 +2,27 @@
 var colors = [0xff0000, 0x00ff00, 0x0000ff]
 var juggler;
 var T_s;
+var startTime;
 
 // Renderer vars
 var camera, scene, renderer;
 var meshes, floor;
 
+// camera vars
+var cam_theta, cam_phi, cam_r;
+
+// temp camera vars for demo
+var cam_r_dir = true;
+
 function animate() {
-
-	// note: three.js includes requestAnimationFrame shim
-	requestAnimationFrame( animate );
-
+	
 	var t = ((new Date()).getTime()-startTime)/1000*T_s;//-startTime;
 	
-	juggler.update_juggler(t);
-
+	var update_juggler_start = (new Date()).getTime();
+	juggler.update_juggler(t);	
+	var update_juggler_end = (new Date()).getTime();
+	
+	
 	// draw all the juggler's props
 	for (var i = 0; i < juggler.props.length; i++) {
 		if (juggler.props[i].active == true) {
@@ -25,9 +32,38 @@ function animate() {
 			meshes[i].rotation.y += .01;
 		}
 	}		
-	
-	renderer.render( scene, camera );
 
+
+	
+	/* update camera */
+	cam_theta += .002;
+	if (cam_r_dir == true && cam_r > 6)
+		cam_r_dir = false;
+	
+	if (cam_r_dir == false && cam_r < 2)
+		cam_r_dir = true;
+		
+	if (cam_r_dir == true)
+		cam_r += .003;
+	else
+		cam_r -= .003;
+	
+	camera.position.x = cam_r * Math.sin( cam_theta ) * Math.cos( cam_phi );
+    camera.position.y = cam_r * Math.sin( cam_phi );
+    camera.position.z = cam_r * Math.cos( cam_theta ) * Math.cos( cam_phi );
+
+	camera.lookAt(new THREE.Vector3(0,juggler.H,0));
+	
+	var render_start = (new Date()).getTime();
+	renderer.render( scene, camera );
+	var render_end = (new Date()).getTime();
+	
+	$('#statsContainer').find('#update_juggler_time').text(update_juggler_end-update_juggler_start);
+	$('#statsContainer').find('#render_time').text(render_end-render_start);
+	
+	// note: three.js includes requestAnimationFrame shim
+	requestAnimationFrame( animate );
+	
 }
 
 // function called by the GO button
@@ -56,9 +92,9 @@ function start_juggling() {
 	var D_TH_dir_r = parseInt(document.getElementById("in_D_TH_dir_r").value);
 	var D_TH_dir_l = parseInt(document.getElementById("in_D_TH_dir_l").value);
 	var C = parseFloat(document.getElementById("in_C").value);
-	var cam_x = parseFloat(document.getElementById("in_cam_x").value);
-	var cam_y = parseFloat(document.getElementById("in_cam_y").value);
-	var cam_z = parseFloat(document.getElementById("in_cam_z").value);
+	cam_theta = parseFloat(document.getElementById("in_cam_theta").value);
+	cam_phi = parseFloat(document.getElementById("in_cam_phi").value);
+	cam_r = parseFloat(document.getElementById("in_cam_r").value);
 
 	//create validation error messages
 	validation_msgs = [];
@@ -91,12 +127,12 @@ function start_juggling() {
 		/* set up the camera and the scene */
 		var $container = $('#canvasContainer');
 		
-		var width = $container.width(), height = $(window).height();
+		var width = $(window).width(), height = $(window).height();
 
 		camera = new THREE.PerspectiveCamera( 75, width/height, 1, 10000 );
-		camera.position.x = cam_x;
-		camera.position.y = cam_y;
-		camera.position.z = cam_z;
+		camera.position.x = cam_r * Math.sin( cam_theta ) * Math.cos( cam_phi );
+        camera.position.y = cam_r * Math.sin( cam_phi );
+        camera.position.z = cam_r * Math.cos( cam_theta ) * Math.cos( cam_phi );
 
 		camera.lookAt(new THREE.Vector3(0,H,0));
 		
@@ -114,7 +150,8 @@ function start_juggling() {
 			scene.add(meshes[i]);
 		}
 		
-		floor = new THREE.Mesh(new THREE.PlaneGeometry(2, 2, 20, 20), new THREE.MeshBasicMaterial( { color: 0x000000, wireframe: true } ));
+		
+		floor = new THREE.Mesh(new THREE.PlaneGeometry(2, 2, 2, 2), new THREE.MeshBasicMaterial( { color: 0x000000, wireframe: true } ));
 		floor.rotation.x += 3*Math.PI/2
 		scene.add(floor);
 		

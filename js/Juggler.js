@@ -28,6 +28,7 @@ function Juggler(N, SSW, W, B, D, D_R_r, D_R_l, D_TH_c_r, D_TH_t_r, D_TH_c_l, D_
 	this.jugglerSSW = [];
 	this.dt = 0;
 	this.next_ssw_index = N%SSW.length;
+	this.hands = [];
 	
 	// helper functions to return the hand x/y coords for throws and catches
 	this.X_t_r = function() {
@@ -180,6 +181,10 @@ function Juggler(N, SSW, W, B, D, D_R_r, D_R_l, D_TH_c_r, D_TH_t_r, D_TH_c_l, D_
 			this.props.push(new Prop(i*this.B+this.D, this.B*(ssw+i), flight_path, x , y, dx, dy, this.R, ssw_index));			
 		}
 		
+		// set the hand positions		
+		this.hands[RIGHT] = {x: this.X_t_r(), y: this.Y_t_r()}
+		this.hands[LEFT] = {x: this.X_t_l(), y: this.Y_t_l()}
+		
 		return true;
 	}
 	
@@ -227,14 +232,14 @@ function Juggler(N, SSW, W, B, D, D_R_r, D_R_l, D_TH_c_r, D_TH_t_r, D_TH_c_l, D_
 			// if the throw is in the future, the prop is still in the hand
 			if (this.props[i].t_throw > t) {
 				this.props[i].dx = 0;
-				this.props[i].dy = 0;
+				this.props[i].dy = 0;			
 			
 				if(hand == RIGHT) {
 					theta_throw = 2*Math.PI*this.D_TH_dir_r+this.D_TH_t_r;
 					theta_catch = this.D_TH_c_r;					
 					v_theta = (theta_throw-theta_catch)/this.D;
 					R = this.D_R_r;
-					center = this.W/2;
+					center = this.W/2;					
 				} else {
 					theta_throw = this.D_TH_t_l;
 					theta_catch = this.D_TH_c_l;
@@ -246,6 +251,10 @@ function Juggler(N, SSW, W, B, D, D_R_r, D_R_l, D_TH_c_r, D_TH_t_r, D_TH_c_l, D_
 				theta_t = theta_catch + v_theta*(t-this.props[i].t_throw+this.D);
 				this.props[i].x = center + R*Math.cos(theta_t);
 				this.props[i].y = this.H+R*Math.sin(theta_t);				
+				
+				// assign the juggler's hands coordinates
+				this.hands[hand].x = this.props[i].x;
+				this.hands[hand].y = this.props[i].y;
 			} 
 			// if the throw is in the past, the prop is still in the air
 			else {

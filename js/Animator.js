@@ -1,3 +1,5 @@
+//got the camera rotation code from: http://www.mrdoob.com/projects/voxels/#A/
+
 // Animator environment vars, eventually if Animator is a class these will be fields for it
 var colors = [0xff0000, 0x00ff00, 0x0000ff]
 var juggler;
@@ -7,9 +9,13 @@ var startTime;
 // Renderer vars
 var camera, scene, renderer;
 var meshes, floor;
+var juggler_body;
 
 // camera vars
 var cam_theta, cam_phi, cam_r;
+
+//mouse vars
+var isMouseDown = false, onMouseDownTheta, onMouseDownPhi, onMouseDownPosition;
 
 // temp camera vars for demo
 var cam_r_dir = true;
@@ -23,7 +29,7 @@ function animate() {
 	var update_juggler_end = (new Date()).getTime();
 	
 	
-	// draw all the juggler's props
+	// update the juggler's props positions
 	for (var i = 0; i < juggler.props.length; i++) {
 		if (juggler.props[i].active == true) {
 			meshes[i].position.x = juggler.props[i].x;
@@ -33,9 +39,16 @@ function animate() {
 		}
 	}		
 
-
+	// update the juggler's hands positions
+	juggler_body.geometry.vertices[4].x = juggler.hands[RIGHT].x;
+	juggler_body.geometry.vertices[4].y = juggler.hands[RIGHT].y;
+	juggler_body.geometry.vertices[9].x = juggler.hands[LEFT].x;
+	juggler_body.geometry.vertices[9].y = juggler.hands[LEFT].y;
 	
 	/* update camera */
+	
+	//this is in case you want to auto rotate
+	/*
 	cam_theta += .002;
 	if (cam_r_dir == true && cam_r > 6)
 		cam_r_dir = false;
@@ -47,6 +60,7 @@ function animate() {
 		cam_r += .003;
 	else
 		cam_r -= .003;
+	*/
 	
 	camera.position.x = cam_r * Math.sin( cam_theta ) * Math.cos( cam_phi );
     camera.position.y = cam_r * Math.sin( cam_phi );
@@ -113,6 +127,14 @@ function start_juggling() {
 		document.getElementById("validationMsgs").innerHTML = validation_html;
 	} else {
 	
+		/* add mouse handlers */
+		document.addEventListener( 'mousemove', onDocumentMouseMove, false );
+		document.addEventListener( 'mousedown', onDocumentMouseDown, false );
+		document.addEventListener( 'mouseup', onDocumentMouseUp, false );
+		document.addEventListener( 'mousewheel', onDocumentMouseWheel, false );
+	
+		onMouseDownPosition = new THREE.Vector2();
+	
 		/* init juggler */
 	
 		juggler = new Juggler(N, SSW, W, B, D, D_R_r, D_R_l, D_TH_c_r, D_TH_t_r, D_TH_c_l, D_TH_t_l, H, G, R, D_TH_dir_r, D_TH_dir_l, C);
@@ -151,9 +173,24 @@ function start_juggling() {
 		}
 		
 		
-		floor = new THREE.Mesh(new THREE.PlaneGeometry(2, 2, 2, 2), new THREE.MeshBasicMaterial( { color: 0x000000, wireframe: true } ));
+		floor = new THREE.Mesh(new THREE.PlaneGeometry(2, 2, 3, 3), new THREE.MeshBasicMaterial( { color: 0x000000, wireframe: true } ));
 		floor.rotation.x += 3*Math.PI/2
 		scene.add(floor);
+		
+		var juggler_body_geometry = new THREE.Geometry();		
+		juggler_body_geometry.vertices.push(new THREE.Vector3(0,0,.5)); //base
+		juggler_body_geometry.vertices.push(new THREE.Vector3(0,1.5*H,.5)); //top
+		juggler_body_geometry.vertices.push(new THREE.Vector3(.3,1.5*H,.5)); //shoulder
+		juggler_body_geometry.vertices.push(new THREE.Vector3(.4,H,.5)); //elbow
+		juggler_body_geometry.vertices.push(new THREE.Vector3(W/2,H,0)); // right hand
+		juggler_body_geometry.vertices.push(new THREE.Vector3(.4,H,.5)); //back elbow
+		juggler_body_geometry.vertices.push(new THREE.Vector3(.3,1.5*H,.5)); //back to shoulder
+		juggler_body_geometry.vertices.push(new THREE.Vector3(-.3,1.5*H,.5)); //other shoulder
+		juggler_body_geometry.vertices.push(new THREE.Vector3(-.4,H,.5)); //other elbow
+		juggler_body_geometry.vertices.push(new THREE.Vector3(-W/2,H,0)); // left hand
+		
+		juggler_body = new THREE.Line(juggler_body_geometry, new THREE.LineBasicMaterial({color: 0x000000}));
+		scene.add(juggler_body);
 		
 		/* set up the renderer */
 		renderer = new THREE.CanvasRenderer();
@@ -164,4 +201,29 @@ function start_juggling() {
 		
 		animate();
 	}
+}
+
+function onDocumentMouseDown( event ) {
+	isMouseDown = true;
+	onMouseDownTheta = cam_theta;
+	onMouseDownPhi = cam_phi;
+	onMouseDownPosition.x = event.clientX;
+	onMouseDownPosition.y = event.clientY;
+}
+
+function onDocumentMouseMove( event ) {
+	event.preventDefault();
+	if ( isMouseDown ) {
+		cam_theta = - ( ( event.clientX - onMouseDownPosition.x ) * 0.01 ) + onMouseDownTheta;
+		cam_phi = ( ( event.clientY - onMouseDownPosition.y ) * 0.01 ) + onMouseDownPhi;
+	}
+}
+
+function onDocumentMouseUp( event ) {
+	event.preventDefault();
+	isMouseDown = false;
+}
+
+function onDocumentMouseWheel( event ) {
+	cam_r -= event.wheelDeltaY*.01;
 }

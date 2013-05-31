@@ -3,21 +3,60 @@
 	text-align: left;
 }
 
-#statsContainer {
-	position: absolute;
-	right: 500px;
-	text-align: left;
-}
-
-
 input, button {
 	width: 100%;
 }
 
-#validationMsgs {
-	color: Red;
-}
-
 body {
 	background-color: lightgrey;
+}
+
+/* debugger */
+.debug {
+	font-size:10px;
+	font-family: arial,sans-serif;
+	background-color: #ffcccc;
+	padding: 10px;
+}
+
+.debug_table {
+	background-color: white;
+	border-collapse: collapse;
+	text-align: center;
+}	
+
+.debug_table td {
+	padding: 3px;
+	width: 25px;
+}
+
+.debug_table tr:nth-child(even) {
+	background-color: #eeeeee;
+}
+
+.debug_table td:first-child {
+	width: 40px;
+}
+
+.debug_table tr:not(:first-child):hover {
+	background-color: #ffdddd;
+}
+
+.debug_table .label {
+	text-align: left;
+}	
+
+.debug_table .numeric {
+	text-align: right;
+}
+
+.debug_table .header {
+	font-size: 12px;
+	font-style: bold;
+}
+
+#debug_container {
+	position: absolute;
+	right: 10px;
+	bottom: 10px;
 }

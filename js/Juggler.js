@@ -1,10 +1,9 @@
 RIGHT = 0;
 LEFT = 1;
 
-function Juggler(N, SSW, W, B, D, H, G, R, C, DWELL_R_RIGHT, DWELL_R_LEFT, DWELL_TH_CATCH_RIGHT, DWELL_TH_THROW_RIGHT, DWELL_TH_CATCH_LEFT, DWELL_TH_THROW_LEFT, DWELL_CCW_RIGHT, DWELL_CCW_LEFT) {
+function Juggler(SSW, W, B, D, H, G, R, C, DWELL_R_RIGHT, DWELL_R_LEFT, DWELL_TH_CATCH_RIGHT, DWELL_TH_THROW_RIGHT, DWELL_TH_CATCH_LEFT, DWELL_TH_THROW_LEFT, DWELL_CCW_RIGHT, DWELL_CCW_LEFT) {
 	
 	/* static attributes */	
-	this.N = N; 		// number of props -- technically you could just get this from the siteswap but it's nice to have explicitly defined
 	this.SSW = SSW; 	// siteswap
 	this.W = W; 		// width of pattern 
 	this.B = B; 		// length of a beat
@@ -14,6 +13,8 @@ function Juggler(N, SSW, W, B, D, H, G, R, C, DWELL_R_RIGHT, DWELL_R_LEFT, DWELL
 	this.R = R; 		// prop radius
 	this.C = C;			// coefficient of restitution for all props
 
+	this.N = get_n_from_ssw(SSW);
+	
 	/* static dwell attributes */
 	this.DWELL = [];
 	this.DWELL[RIGHT] = {
@@ -33,7 +34,8 @@ function Juggler(N, SSW, W, B, D, H, G, R, C, DWELL_R_RIGHT, DWELL_R_LEFT, DWELL
 		Y_CATCH: this.H+DWELL_R_LEFT*Math.sin(DWELL_TH_CATCH_LEFT),
 		TH_THROW: DWELL_TH_THROW_LEFT,
 		X_THROW: -this.W/2+DWELL_R_LEFT*Math.cos(DWELL_TH_THROW_LEFT),
-		Y_THROW: this.H+DWELL_R_LEFT*Math.sin(DWELL_TH_THROW_LEFT)
+		Y_THROW: this.H+DWELL_R_LEFT*Math.sin(DWELL_TH_THROW_LEFT),
+		CCW: DWELL_CCW_LEFT
 	};	
 	
 	/* dynamic */
@@ -42,7 +44,7 @@ function Juggler(N, SSW, W, B, D, H, G, R, C, DWELL_R_RIGHT, DWELL_R_LEFT, DWELL
 	this.hands = [];			// keeps track of the position of the hands
 	this.t = 0;					// general timer
 	
-	this.next_ssw_index = N%SSW.length;
+	this.next_ssw_index = this.N%SSW.length;
 	
 	/* need explicit init function b/c of possible overhead associated with calculating throw velocity */
 	this.init = function () {
@@ -142,8 +144,8 @@ function Juggler(N, SSW, W, B, D, H, G, R, C, DWELL_R_RIGHT, DWELL_R_LEFT, DWELL
 		}
 		
 		// init the hand positions		
-		this.hands[RIGHT] = {x: this.DWELL[RIGHT].X_THROW, y: this.DWELL[RIGHT].Y_THROW};
-		this.hands[LEFT] = {x: this.DWELL[LEFT].X_THROW, y: this.DWELL[LEFT].Y_THROW};
+		this.hands[RIGHT] = {x: this.DWELL[RIGHT].X_THROW, y: this.DWELL[RIGHT].Y_THROW, theta: this.DWELL[RIGHT].TH_THROW};
+		this.hands[LEFT] = {x: this.DWELL[LEFT].X_THROW, y: this.DWELL[LEFT].Y_THROW, theta: this.DWELL[LEFT].TH_THROW};
 		
 		return true;
 	}
@@ -219,6 +221,7 @@ function Juggler(N, SSW, W, B, D, H, G, R, C, DWELL_R_RIGHT, DWELL_R_LEFT, DWELL
 				// assign the juggler's hands coordinates
 				this.hands[hand].x = this.props[i].x;
 				this.hands[hand].y = this.props[i].y;
+				this.hands[hand].theta = theta_t;
 				
 				hand_set[hand] = true;
 			} 
@@ -244,16 +247,55 @@ function Juggler(N, SSW, W, B, D, H, G, R, C, DWELL_R_RIGHT, DWELL_R_LEFT, DWELL
 				}
 
 				// try to set the next catch time for either hand
-				if (this.props[i].t_catch < t_next_catch[hand])
-					t_next_catch[hand] = this.props[i].t_catch;
+				var target_hand = this.props[i].flight_path[1];
+				if (t_next_catch[target_hand] == 0 || this.props[i].t_catch < t_next_catch[target_hand])
+					t_next_catch[target_hand] = this.props[i].t_catch;
 			}
 			
 		}
 		
-		//TODO: set the hand positions if not set already using the t_next_catch
+		for (var hand = 0; hand <= 1; hand++) {
+			//if the hand isn't set, calculate the hands position (basically the exact opposite of calculating the dwell path)
+			if (!hand_set[hand])  {
+				
+				var theta_t = this.hands[hand].theta;
+				var theta_catch = this.DWELL[hand].TH_CATCH;
+				
+				// the calculated dwell angular velocity must match the CCW flag for the hand				
+				if (this.DWELL[hand].CCW && theta_catch < theta_t)
+					theta_catch += 2*Math.PI;
+				if (!this.DWELL[hand].CCW && theta_catch > theta_t)
+					theta_catch -= 2*Math.PI;
+				
+				var v_theta = (theta_catch-theta_t)/(t_next_catch[hand]-this.t);
+				
+				var center = this.W/2;
+				if (hand == LEFT)
+					center = -this.W/2;
+				
+				this.hands[hand].theta += v_theta*dt;
+				this.hands[hand].x = center + this.DWELL[hand].R*Math.cos(this.hands[hand].theta);
+				this.hands[hand].y = this.H + this.DWELL[hand].R*Math.sin(this.hands[hand].theta);
+				
+			}
+		}
 		
 		return true;
 	}
+	
+}
+
+/* originally explicitly defined N for the SSW, but we should just get it from the SSW */
+function get_n_from_ssw(ssw) {
+	var sum = 0;
+	for(var i = 0; i < ssw.length; i++) {
+		sum += parseInt(ssw[i][0]);
+	}
+	
+	if ( sum % ssw.length != 0 ) 
+		throw 'Invalid SSW';
+	
+	return sum / ssw.length;
 	
 }
 
@@ -262,8 +304,8 @@ function validate_ssw(N,ssw) {
 
 	//checks if the given ssw is valid for the number of props N
 
-	sum = 0;
-	land = []; //keeps track of when throws land
+	var sum = 0;
+	var land = []; //keeps track of when throws land
 	
 	for (var i = 0; i < ssw.length; i++) {
 		if (land[i+parseInt(ssw[i][0])] == 1) {

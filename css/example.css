@@ -1,21 +1,55 @@
-#controlsContainer {
+/* general container */
+.gswap_container {
+	font-size:10px;
+	font-family: arial,sans-serif;
+	
 	position: absolute;
+	top: 10px;
+	text-align: center;
+	width: 100%;
+	
+	/* couldn't get this to work within the #canvas_container definition below... 
+	so it's just going to apply to the whole page */
+	-webkit-user-select: none;
+}
+
+.gswap_container table {
+	margin-left: auto;
+	margin-right: auto;
 	text-align: left;
 }
 
-input, button {
-	width: 100%;
+.advanced_controls input {
+	width: 20px;
 }
 
-body {
-	background-color: lightgrey;
+/* advanced controls nav */
+.gswap_container ul {
+	list-style-type:none;
+	margin:0;
+	padding:0;
+	padding-top:6px;
+	padding-bottom:6px;
+}
+.gswap_container li {
+	display:inline;
+}
+.gswap_container #advanced_nav a:link,a:visited {
+	font-weight:bold;
+	color:#FFFFFF;
+	background-color:#000000;
+	text-align:center;
+	padding:6px;
+	text-decoration:none;
+	text-transform:uppercase;
+}
+
+.gswap_container #advanced_nav a:hover,a:active {
+	background-color:#999999;
 }
 
 /* debugger */
 .debug {
-	font-size:10px;
-	font-family: arial,sans-serif;
-	background-color: #ffcccc;
 	padding: 10px;
 }
 
@@ -53,10 +87,4 @@ body {
 .debug_table .header {
 	font-size: 12px;
 	font-style: bold;
-}
-
-#debug_container {
-	position: absolute;
-	right: 10px;
-	bottom: 10px;
 }

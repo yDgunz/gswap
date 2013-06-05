@@ -7,69 +7,85 @@
 </head>
 <body>
 
-<script src="js/jquery-1.9.1.js"></script>
-<script src="js/three.min.js"></script>
+	<script src="js/jquery-1.9.1.js"></script>
+	<script src="js/three.min.js"></script>
 
-<div id="controlsContainer">
-	<div id="validationMsgs"></div>
-	<button onclick="init();">Init</button>
-	<br/>
-	<table id="controls">
-		<tr><td>N</td><td><input id="in_N" type="N" value="3" /></td></tr>
-		<tr><td>SSW</td><td><input id="in_SSW" value="3" /></td></tr>
-		<tr><td>W</td><td><input id="in_W" value="1" /></td></tr>
-		<tr><td>B</td><td><input id="in_B" value=".3" /></td></tr>
-		<tr><td>D</td><td><input id="in_D" value=".2" /></td></tr>
-		<tr><td>D_R_r</td><td><input id="in_DWELL_R_RIGHT" value=".2" /></td></tr>
-		<tr><td>D_R_l</td><td><input id="in_DWELL_R_LEFT" value=".2" /></td></tr>
-		<tr><td>D_TH_c_r</td><td><input id="in_DWELL_TH_CATCH_RIGHT" value="0" /></td></tr>
-		<tr><td>D_TH_t_r</td><td><input id="in_DWELL_TH_THROW_RIGHT" value="3.14" /></td></tr>
-		<tr><td>D_TH_dir_r</td><td><input id="in_DWELL_CCW_RIGHT" value="-1" /></td></tr>
-		<tr><td>D_TH_c_l</td><td><input id="in_DWELL_TH_CATCH_LEFT" value="3.14" /></td></tr>
-		<tr><td>D_TH_t_l</td><td><input id="in_DWELL_TH_THROW_LEFT" value="6.28" /></td></tr>
-		<tr><td>D_TH_dir_l</td><td><input id="in_DWELL_CCW_LEFT" value="1" /></td></tr>
-		<tr><td>H</td><td><input id="in_H" value="1" /></td></tr>
-		<tr><td>G</td><td><input id="in_G" value="-9.8" /></td></tr>
-		<tr><td>R</td><td><input id="in_R" value=".1" /></td></tr>
-		<tr><td>T_s</td><td><input id="in_T_s" type="text" value="1" /></td></tr>
-		<tr><td>C</td><td><input id="in_C" type="text" value=".95" /></td></tr>
-		<tr><td>Cam theta</td><td><input id="in_cam_theta" value="2.5" /></td></tr>
-		<tr><td>Cam phi</td><td><input id="in_cam_phi" value=".4" /></td></tr>
-		<tr><td>Cam radius</td><td><input id="in_cam_r" value="4" /></td></tr>
-		<tr><td>
-			<angle_selector id="left_hand_dwell" width="100" height="100" angle1="3.14" angle2="0" radius="40" handle_radius="10" ccw="true" angle1_label="C" angle2_label="T"></angle_selector>
-			<angle_selector id="right_hand_dwell" width="100" height="100" angle1="6.28" angle2="3.14" radius="40" handle_radius="10" ccw="false" angle1_label="C" angle2_label="T"></angle_selector>
-		</td></tr>
-	</table>
-</div>
+	<div id="gswap_container" class="gswap_container">
 
-<div id="debug_container" class="debug">
-	<table id="debug_general" class="debug_table">
-		<tr><td class="label">t</td><td id="debug_general_t" class="numeric">123.00</td></tr>
-	</table>
-	<br/>
-	<table id="debug_ssw" class="debug_table">
-		<tr id="debug_ssw_header"><th class="header">throw</th></tr>
-		<tr id="debug_ssw_dx_left"><td class="label">dx left</td></tr>
-		<tr id="debug_ssw_dy_left"><td class="label">dy left</td></tr>
-		<tr id="debug_ssw_dx_right"><td class="label">dx right</td></tr>
-		<tr id="debug_ssw_dy_right"><td class="label">dy right</td></tr>
-	</table>
-	<br/>
-	<table id="debug_prop" class="debug_table">
-		<tr id="debug_prop_header"><th class="header">prop</th></tr>
-		<tr id="debug_prop_ssw"><td class="label">ssw</td></tr>
-		<tr id="debug_prop_t_throw"><td class="label">t throw</td></tr>
-		<tr id="debug_prop_t_catch"><td class="label">t catch</td></tr>
-		<tr id="debug_prop_x"><td class="label">x</td></tr>
-		<tr id="debug_prop_y"><td class="label">y</td></tr>
-		<tr id="debug_prop_dx"><td class="label">dx</td></tr>
-		<tr id="debug_prop_dy"><td class="label">dy</td></tr>
-	</table>
-</div>
+		<!-- advanced controls nav -->
+		<div id="advanced_nav">
+			<ul>
+				<li><a href="#" onclick="$('#advanced_controls_pattern').is(':hidden') ? $('#advanced_controls_pattern').show() : $('#advanced_controls_pattern').hide();">Pattern</a></li>
+				<li><a href="#">Props</a></li>
+				<li><a href="#" onclick="$('#advanced_controls_env').is(':hidden') ? $('#advanced_controls_env').show() : $('#advanced_controls_env').hide();">Environment</a></li>
+				<li><a href="#">Debugger</a></li>
+			</ul>
+		</div>
+		<br/>
+		
+		<div id="advanced_controls_pattern" class="advanced_controls" hidden="true">
+			<table>
+				<tr><td>Beat time</td><td><input id="in_B" value=".3" /> s</td>
+				<tr><td>Dwell time</td><td><input id="in_D" value=".2" /> s</td>
+			</table>
+			<table style="text-align: center">
+				<tr>
+					<td><input id="in_DWELL_R_LEFT" value=".2" /></td>
+					<td><input id="in_DWELL_R_RIGHT" value=".2" /></td>				
+				</tr>
+				<tr>
+					<td><angle_selector id="left_hand_dwell" width="100" height="100" angle1="3.14" angle2="0" radius="40" handle_radius="10" ccw="true" angle1_label="C" angle2_label="T"></angle_selector></td>
+					<td><angle_selector id="right_hand_dwell" width="100" height="100" angle1="6.28" angle2="3.14" radius="40" handle_radius="10" ccw="false" angle1_label="C" angle2_label="T"></angle_selector></td>
+			</table>
+		</div>
+		<div id="advanced_controls_env" class="advanced_controls" hidden="true">
+			<table id="controls">
+				<tr><td>W</td><td><input id="in_W" value="1" /></td></tr>
+				<tr><td>H</td><td><input id="in_H" value="1" /></td></tr>
+				<tr><td>G</td><td><input id="in_G" value="-9.8" /></td></tr>
+				<tr><td>R</td><td><input id="in_R" value=".1" /></td></tr>
+				<tr><td>T_s</td><td><input id="in_T_s" type="text" value="1" /></td></tr>
+				<tr><td>C</td><td><input id="in_C" type="text" value=".95" /></td></tr>
+			</table>
+		</div>
+		
+		<!-- main siteswap input -->
+		<input id="in_SSW" value="3" style="font-size:30px; width: 200px;"/>
+		<br/>
+		
+		<a href="#" onclick="init();"><img id="play_button" src="img/play.png" width="50" height="50"></img></a>
+		<a href="#" onclick="pause();"><img id="pause_button" src="img/pause.png" width="50" height="50"></img></a>
+		<br/>
+		
+		<!-- the juggler canvas container -->
+		<div id="canvas_container"></div>
 
-<div id="canvasContainer">		
-</div>
+		<div id="debug_container" class="debug" hidden="true">
+			<table id="debug_general" class="debug_table" border="1">
+				<tr><td class="label">t</td><td id="debug_general_t" class="numeric">123.00</td></tr>
+			</table>
+			<br/>
+			<table id="debug_ssw" class="debug_table" border="1">
+				<tr id="debug_ssw_header"><th class="header">throw</th></tr>
+				<tr id="debug_ssw_dx_left"><td class="label">dx left</td></tr>
+				<tr id="debug_ssw_dy_left"><td class="label">dy left</td></tr>
+				<tr id="debug_ssw_dx_right"><td class="label">dx right</td></tr>
+				<tr id="debug_ssw_dy_right"><td class="label">dy right</td></tr>
+			</table>
+			<br/>
+			<table id="debug_prop" class="debug_table" border="1">
+				<tr id="debug_prop_header"><th class="header">prop</th></tr>
+				<tr id="debug_prop_ssw"><td class="label">ssw</td></tr>
+				<tr id="debug_prop_t_throw"><td class="label">t throw</td></tr>
+				<tr id="debug_prop_t_catch"><td class="label">t catch</td></tr>
+				<tr id="debug_prop_x"><td class="label">x</td></tr>
+				<tr id="debug_prop_y"><td class="label">y</td></tr>
+				<tr id="debug_prop_dx"><td class="label">dx</td></tr>
+				<tr id="debug_prop_dy"><td class="label">dy</td></tr>
+			</table>
+		</div>
+
+	</div>
 
 </body>
 

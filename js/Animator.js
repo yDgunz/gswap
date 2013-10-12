@@ -1,294 +1,177 @@
-// Animator environment vars, eventually if Animator is a class these will be fields for it
-var colors = [0xff0000, 0x00ff00, 0x0000ff]
-var juggler;
-var T_s;
-var t_last_updated;
-var paused;
+//general
+var timeScale = 1;
+
+// 2D rendering var
+var canvas;
+var viewportHeight = 3
 
 // Renderer vars
+var renderMode;
+
 var camera, scene, renderer;
 var meshes, floor;
-var juggler_body;
 
 // camera vars
-var cam_theta = 2.5, cam_phi = .4, cam_r = 3;
+var camTheta = 2.5, camPhi = .4, camRadius = 3;
 
 //mouse vars
 var isMouseDown = false, onMouseDownTheta, onMouseDownPhi, onMouseDownPosition;
 
-function get_inputs() {
+var juggler, lastUpdatedTime;
 
-	var SSWtmp = document.getElementById("in_SSW").value.split(",");
-	var SSW = [];
-	for (var i = 0; i < SSWtmp.length; i++) {
-		SSW.push(SSWtmp[i]);
-	}
-	var W = parseFloat(document.getElementById("in_W").value);
-	var B = parseFloat(document.getElementById("in_B").value);
-	var D = parseFloat(document.getElementById("in_D").value);
-	var DWELL_R_RIGHT = parseFloat(document.getElementById("in_DWELL_R_RIGHT").value);
-	var DWELL_R_LEFT = parseFloat(document.getElementById("in_DWELL_R_LEFT").value);
-	/*
-	var DWELL_TH_CATCH_RIGHT = parseFloat(document.getElementById("in_DWELL_TH_CATCH_RIGHT").value);
-	var DWELL_TH_THROW_RIGHT = parseFloat(document.getElementById("in_DWELL_TH_THROW_RIGHT").value);
-	var DWELL_TH_CATCH_LEFT = parseFloat(document.getElementById("in_DWELL_TH_CATCH_LEFT").value);
-	var DWELL_TH_THROW_LEFT = parseFloat(document.getElementById("in_DWELL_TH_THROW_LEFT").value);
-	var DWELL_CCW_RIGHT = document.getElementById("in_DWELL_CCW_RIGHT").value == "1" ? true : false;
-	var DWELL_CCW_LEFT = document.getElementById("in_DWELL_CCW_LEFT").value == "1" ? true : false;
-	*/
-	var H = parseFloat(document.getElementById("in_H").value);
-	var G = parseFloat(document.getElementById("in_G").value);
-	var R = parseFloat(document.getElementById("in_R").value);
-	var C = parseFloat(document.getElementById("in_C").value);
-	var T_s = parseFloat(document.getElementById("in_T_s").value);
+function go() {
+	
+	renderMode = $('input:radio[name=renderMode]:checked').val();
 
-	//get dwell inputs
-	var DWELL_TH_CATCH_RIGHT = parseFloat($('#right_hand_dwell').attr('angle1'));
-	var DWELL_TH_THROW_RIGHT = parseFloat($('#right_hand_dwell').attr('angle2'));
-	var DWELL_CCW_RIGHT = $('#right_hand_dwell').attr('ccw') == "true" ? true : false;
-	var DWELL_TH_CATCH_LEFT = parseFloat($('#left_hand_dwell').attr('angle1'));
-	var DWELL_TH_THROW_LEFT = parseFloat($('#left_hand_dwell').attr('angle2'));
-	var DWELL_CCW_LEFT = $('#left_hand_dwell').attr('ccw') == "true" ? true : false;	
-	
-	// validate inputs
-	if (D >= B)
-		throw "Dwell must be less than beat";
-	if (H < 0)
-		throw "Height must be > 0";
-		
-	//return an object of the inputs
-	return {
-		SSW: SSW,
-		W: W,
-		B: B,
-		D: D,
-		DWELL_R_RIGHT: DWELL_R_RIGHT,
-		DWELL_R_LEFT: DWELL_R_LEFT,
-		DWELL_TH_CATCH_RIGHT: DWELL_TH_CATCH_RIGHT,
-		DWELL_TH_THROW_RIGHT: DWELL_TH_THROW_RIGHT,
-		DWELL_TH_CATCH_LEFT: DWELL_TH_CATCH_LEFT,
-		DWELL_TH_THROW_LEFT: DWELL_TH_THROW_LEFT,
-		DWELL_CCW_RIGHT: DWELL_CCW_RIGHT,
-		DWELL_CCW_LEFT: DWELL_CCW_LEFT,
-		H: H,
-		G: G,
-		R: R,
-		C: C,
-		T_s: T_s
-	};
-
-}
-
-function init_renderer() {
-	
-	// set up the camera and the scene 
-	var $container = $('#canvas_container');
-	
-	//var width = $container.width(), height = $container.height();
-	var width = 600, height = 600;
-
-	camera = new THREE.PerspectiveCamera( 75, width/height, 1, 10000 );
-	camera.position.x = cam_r * Math.sin( cam_theta ) * Math.cos( cam_phi );
-	camera.position.y = cam_r * Math.sin( cam_phi );
-	camera.position.z = cam_r * Math.cos( cam_theta ) * Math.cos( cam_phi );
-
-	camera.lookAt(new THREE.Vector3(0,juggler.H,0));
-	
-	scene = new THREE.Scene();
-
-	/* set up the meshes */
-	meshes = [];
-	for (var i = 0; i < juggler.props.length; i++) {
-		var mesh = 
-			new THREE.Mesh(
-				new THREE.SphereGeometry(juggler.R, 5, 5)
-				, new THREE.MeshBasicMaterial( { color: colors[i % colors.length], wireframe: false } )
-			);
-		meshes.push(mesh);
-		scene.add(meshes[i]);
-	}
-	
-	
-	floor = new THREE.Mesh(new THREE.PlaneGeometry(2, 2, 3, 3), new THREE.MeshBasicMaterial( { color: 0x000000, wireframe: true } ));
-	floor.rotation.x += 3*Math.PI/2
-	scene.add(floor);
-	
-	var juggler_body_geometry = new THREE.Geometry();		
-	juggler_body_geometry.vertices.push(new THREE.Vector3(0,0,.5)); //base
-	juggler_body_geometry.vertices.push(new THREE.Vector3(0,1.5*juggler.H,.5)); //top
-	juggler_body_geometry.vertices.push(new THREE.Vector3(.3,1.5*juggler.H,.5)); //shoulder
-	juggler_body_geometry.vertices.push(new THREE.Vector3(.4,juggler.H,.5)); //elbow
-	juggler_body_geometry.vertices.push(new THREE.Vector3(juggler.W/2,juggler.H,0)); // right hand
-	juggler_body_geometry.vertices.push(new THREE.Vector3(.4,juggler.H,.5)); //back elbow
-	juggler_body_geometry.vertices.push(new THREE.Vector3(.3,1.5*juggler.H,.5)); //back to shoulder
-	juggler_body_geometry.vertices.push(new THREE.Vector3(-.3,1.5*juggler.H,.5)); //other shoulder
-	juggler_body_geometry.vertices.push(new THREE.Vector3(-.4,juggler.H,.5)); //other elbow
-	juggler_body_geometry.vertices.push(new THREE.Vector3(-juggler.W/2,juggler.H,0)); // left hand
-	
-	juggler_body = new THREE.Line(juggler_body_geometry, new THREE.LineBasicMaterial({color: 0x000000}));
-	scene.add(juggler_body);
-	
-	/* set up the renderer */
-	renderer = new THREE.CanvasRenderer();
-	renderer.setSize( width, height );
-	
-	$container.empty();
-	$container.append(renderer.domElement);
-	
-	//add the event listeners for mouse interaction
-	renderer.domElement.addEventListener( 'mousemove', onDocumentMouseMove, false );
-	renderer.domElement.addEventListener( 'mousedown', onDocumentMouseDown, false );
-	renderer.domElement.addEventListener( 'mouseup', onDocumentMouseUp, false );
-	renderer.domElement.addEventListener( 'mousewheel', onDocumentMouseWheel, false );
-	
-	onMouseDownPosition = new THREE.Vector2();
-	
-	//pause if the page loses focus
-	$(window).blur(function() { paused = true; });
-}
-
-function init_debugger() {
-	//ssw debugger
-	for (var i = 0; i < juggler.throw_velocity.length; i++) {
-		$('#debug_ssw_header').append("<th id='debug_ssw_header_" + i + "'>" + i + "</th>");
-		$('#debug_ssw_dx_left').append("<td id='debug_ssw_dx_left_" + i + "' class='numeric'></td>");
-		$('#debug_ssw_dy_left').append("<td id='debug_ssw_dy_left_" + i + "' class='numeric'></td>");
-		$('#debug_ssw_dx_right').append("<td id='debug_ssw_dx_right_" + i + "' class='numeric'></td>");
-		$('#debug_ssw_dy_right').append("<td id='debug_ssw_dy_right_" + i + "' class='numeric'></td>");
-	}
-	
-	// prop debugger
-	for (var i = 0; i < juggler.props.length; i++) {
-		$('#debug_prop_header').append("<th id='debug_prop_header_" + i + "'>" + i + "</th>");
-		$('#debug_prop_ssw').append("<td id='debug_prop_ssw_" + i + "'></td>");
-		$('#debug_prop_t_throw').append("<td id='debug_prop_t_throw_" + i + "' class='numeric'></td>");
-		$('#debug_prop_t_catch').append("<td id='debug_prop_t_catch_" + i + "' class='numeric'></td>");
-		$('#debug_prop_x').append("<td id='debug_prop_x_" + i + "' class='numeric'></td>");
-		$('#debug_prop_y').append("<td id='debug_prop_y_" + i + "' class='numeric'></td>");
-		$('#debug_prop_dx').append("<td id='debug_prop_dx_" + i + "' class='numeric'></td>");
-		$('#debug_prop_dy').append("<td id='debug_prop_dy_" + i + "' class='numeric'></td>");		
-	}
-}
-
-function update_debugger() {
-	//general
-	$('#debug_general_t').text(juggler.t.toFixed(2));
-	
-	//ssw debugger
-	for (var i = 0; i < juggler.throw_velocity.length; i++) {
-		$('#debug_ssw_dx_left_' + i).text(juggler.throw_velocity[i][0].dx.toFixed(2));
-		$('#debug_ssw_dy_left_' + i).text(juggler.throw_velocity[i][0].dy.toFixed(2));
-		$('#debug_ssw_dx_right_' + i).text(juggler.throw_velocity[i][1].dx.toFixed(2));
-		$('#debug_ssw_dy_right_' + i).text(juggler.throw_velocity[i][1].dy.toFixed(2));
-	}
-
-	// prop debugger
-	for (var i = 0; i < juggler.props.length; i++) {
-		$('#debug_prop_ssw_' + i).text(juggler.SSW[juggler.props[i].ssw_index]);
-		$('#debug_prop_t_throw_' + i).text(juggler.props[i].t_throw.toFixed(2));
-		$('#debug_prop_t_catch_' + i).text(juggler.props[i].t_catch.toFixed(2));
-		$('#debug_prop_x_' + i).text(juggler.props[i].x.toFixed(2));
-		$('#debug_prop_y_' + i).text(juggler.props[i].y.toFixed(2));
-		$('#debug_prop_dx_' + i).text(juggler.props[i].dx.toFixed(2));
-		$('#debug_prop_dy_' + i).text(juggler.props[i].dy.toFixed(2));
-	}
-}
-
-// function called by the juggle button
-function init() {
-	
-	// get inputs
-	var i = get_inputs();
-	
-	T_s = i.T_s;
-	
-	// init juggler
-	juggler = new Juggler(i.SSW, i.W, i.B, i.D, i.H, i.G, i.R, i.C, i.DWELL_R_RIGHT, i.DWELL_R_LEFT, i.DWELL_TH_CATCH_RIGHT, i.DWELL_TH_THROW_RIGHT, i.DWELL_TH_CATCH_LEFT, i.DWELL_TH_THROW_LEFT, i.DWELL_CCW_RIGHT, i.DWELL_CCW_LEFT);
+	juggler = new Juggler($('#siteswap').val());
 	juggler.init();
-	
-	t_last_updated = (new Date()).getTime();
-	paused = false;
-	
-	// init renderer
-	init_renderer();			
-	
-	// init debugger
-	init_debugger();
-	update_debugger();
-	
+
+	lastUpdatedTime = 0;
+
 	animate();
-	
 }
 
-function animate() {
-	
-	if (!paused) {
+function zoom(zoomIn) {
+	viewportHeight += ( zoomIn ? -.1 : .1);
+	camRadius += ( zoomIn ? -.1 : .1);
+}
 
-		var update_juggler_start = (new Date()).getTime();
-		var now = (new Date()).getTime();
-		var dt = (now - t_last_updated) * T_s / 1000;
-		
-		//dt should never be greater than .05, if this happens, just make it .05
-		if ( dt > .05 )
-			dt = .05;
-		
-		juggler.update(dt);
-		t_last_updated = now;
-		var update_juggler_end = (new Date()).getTime();
-		
-		// update the juggler's props positions
-		for (var i = 0; i < juggler.props.length; i++) {
-			if (juggler.props[i].active == true) {
-				meshes[i].position.x = juggler.props[i].x;
-				meshes[i].position.y = juggler.props[i].y;
-				meshes[i].rotation.x += .01;
-				meshes[i].rotation.y += .01;
-			}
-		}		
+function adjustSpeed(slowDown) {
+	timeScale += (slowDown ? -.1 : .1);
+}
 
-		// update the juggler's hands positions
-		juggler_body.geometry.vertices[4].x = juggler.hands[RIGHT].x;
-		juggler_body.geometry.vertices[4].y = juggler.hands[RIGHT].y;
-		juggler_body.geometry.vertices[9].x = juggler.hands[LEFT].x;
-		juggler_body.geometry.vertices[9].y = juggler.hands[LEFT].y;
+function drawScene2D(juggler) {
 	
+	if (lastUpdatedTime == 0) {
+		var $container = $('#canvasContainer');
+		$container.empty();
+		$container.append('<canvas id="myCanvas"></canvas>')[0];
+		canvas = $('#myCanvas')[0]
 	}
-	
-	/* update camera */
-	
-	camera.position.x = cam_r * Math.sin( cam_theta ) * Math.cos( cam_phi );
-	camera.position.y = cam_r * Math.sin( cam_phi );
-	camera.position.z = cam_r * Math.cos( cam_theta ) * Math.cos( cam_phi );
 
-	camera.lookAt(new THREE.Vector3(0,juggler.H,0));
-	
-	var render_start = (new Date()).getTime();
-	renderer.render( scene, camera );
-	var render_end = (new Date()).getTime();
-	
-	//update debugger
-	update_debugger();
-	
-	// note: three.js includes requestAnimationFrame shim
-	requestAnimationFrame( animate );
-		
+	canvas.height = $(window).height();
+	canvas.width = $('#canvasContainer').width();
+	var context = canvas.getContext('2d');
+
+	// clear
+	context.clearRect(0, 0, canvas.width, canvas.height);
+
+	// update
+	var scale = canvas.height/viewportHeight;
+
+	juggler.props.map(function(prop) {
+		if (prop.active) {
+			context.beginPath();
+			context.arc(canvas.width/2+prop.position.x*scale,canvas.height-prop.position.y*scale,prop.radius*scale,0,2*Math.PI);
+			context.fillStyle = prop.color;
+			context.fill();
+		}
+	});
+
 }
 
-function pause() {
-	if(paused) {
-		t_last_updated = (new Date()).getTime();
-		paused = false;
+function drawScene3D(juggler) {
+	if (lastUpdatedTime == 0) {
+
+		var $container = $('#canvasContainer');
+		var width = $('#canvasContainer').width(), height = $(window).height();;
+
+		camera = new THREE.PerspectiveCamera( 75, width / height, 1, 10000 );
+		camera.position.x = camRadius * Math.sin( camTheta ) * Math.cos( camPhi );
+		camera.position.y = camRadius * Math.sin( camPhi );
+		camera.position.z = camRadius * Math.cos( camTheta ) * Math.cos( camPhi );
+
+		camera.lookAt(new THREE.Vector3(0,1,0));
+
+		scene = new THREE.Scene();
+
+		meshes = [];
+		juggler.props.map(function(prop) {
+
+			mesh = new THREE.Mesh( new THREE.SphereGeometry( prop.radius ), 
+				new THREE.MeshBasicMaterial( { color: prop.color, wireframe: true } ) );
+
+			mesh.position.x = prop.position.x;
+			mesh.position.y = prop.position.y;
+			mesh.position.z = prop.position.z;
+
+			scene.add( mesh );
+			meshes.push(mesh);
+
+		});
+
+		floor = new THREE.Mesh(new THREE.PlaneGeometry(2, 2, 3, 3), new THREE.MeshBasicMaterial( { color: 0x000000, wireframe: true } ));
+		floor.rotation.x += 3*Math.PI/2
+		scene.add(floor);
+
+		renderer = new THREE.CanvasRenderer();
+		renderer.setSize( width, height );
+
+		$container.empty();
+		$container.append(renderer.domElement);
+
+		//add the event listeners for mouse interaction
+		renderer.domElement.addEventListener( 'mousemove', onDocumentMouseMove, false );
+		renderer.domElement.addEventListener( 'mousedown', onDocumentMouseDown, false );
+		renderer.domElement.addEventListener( 'mouseup', onDocumentMouseUp, false );
+		renderer.domElement.addEventListener( 'mousewheel', onDocumentMouseWheel, false );
+		
+		onMouseDownPosition = new THREE.Vector2();
+
 	} else {
-		paused = true;
+
+		//update prop positions
+		for (var i = 0; i < juggler.props.length; i++) {
+			meshes[i].position.x = juggler.props[i].position.x;
+			meshes[i].position.y = juggler.props[i].position.y;
+			meshes[i].position.z = juggler.props[i].position.z;
+			meshes[i].rotation.x += .01;
+			meshes[i].rotation.y += .01;
+		}	
+
+		///update camera
+		camera.position.x = camRadius * Math.sin( camTheta ) * Math.cos( camPhi );
+		camera.position.y = camRadius * Math.sin( camPhi );
+		camera.position.z = camRadius * Math.cos( camTheta ) * Math.cos( camPhi );
+
+		camera.lookAt(new THREE.Vector3(0,1,0));	
+		
+		
+	
 	}
+
+	renderer.render( scene, camera );
+
 }
 
+function animate() {	
+
+	var now = (new Date()).getTime();
+	var dt = (now - lastUpdatedTime) / 1000 * timeScale;
+
+	if (dt > .05) {
+		dt = .05;
+	}
+
+	juggler.update(dt);
+
+	if (renderMode == '2D') {
+		drawScene2D(juggler);
+	} else if (renderMode == '3D') {
+		drawScene3D(juggler);
+	}
+
+	lastUpdatedTime = now;
+
+	requestAnimationFrame(function() { animate(); });	
+	
+}
 
 //got the camera rotation code from: http://www.mrdoob.com/projects/voxels/#A/
 function onDocumentMouseDown( event ) {
 	isMouseDown = true;
-	onMouseDownTheta = cam_theta;
-	onMouseDownPhi = cam_phi;
+	onMouseDownTheta = camTheta;
+	onMouseDownPhi = camPhi;
 	onMouseDownPosition.x = event.clientX;
 	onMouseDownPosition.y = event.clientY;
 }
@@ -296,11 +179,11 @@ function onDocumentMouseDown( event ) {
 function onDocumentMouseMove( event ) {
 	event.preventDefault();
 	if ( isMouseDown ) {
-		cam_theta = - ( ( event.clientX - onMouseDownPosition.x ) * 0.01 ) + onMouseDownTheta;
+		camTheta = - ( ( event.clientX - onMouseDownPosition.x ) * 0.01 ) + onMouseDownTheta;
 		
 		var dy = event.clientY - onMouseDownPosition.y;
 		//TODO: update this so the camera can't cross the pole
-		cam_phi = ( ( dy ) * 0.01 ) + onMouseDownPhi;
+		camPhi = ( ( dy ) * 0.01 ) + onMouseDownPhi;
 	}
 }
 
@@ -310,5 +193,5 @@ function onDocumentMouseUp( event ) {
 }
 
 function onDocumentMouseWheel( event ) {
-	cam_r -= event.wheelDeltaY*.01;
+	camRadius -= event.wheelDeltaY*.01;
 }

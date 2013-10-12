@@ -1,17 +1,31 @@
-function Prop(t_throw, t_catch, flight_path, x, y, dx, dy, R, ssw_index) {
-	
+function Prop(radius, C, throwHand, color) {
+
 	/* static attributes */
-	this.R = R;
-	
-	/* dynamic attributes */
-	this.t_throw = t_throw;
-	this.t_catch = t_catch;
-	this.flight_path = flight_path;
-	this.x = x;
-	this.y = y;
-	this.dx = dx;
-	this.dy = dy;
+	this.radius = radius;
+	this.C = C; // coefficient of restitution (ie. how bouncy it is)
+	this.throwHand = throwHand;
+	this.color = color;
 	this.active = false;
-	this.ssw_index = ssw_index;
-	
+
+	/* dynamic attributes */
+	this.throwIndex = null;
+	this.throwTime = null;
+	this.catchTime = null;
+	this.position = {x: null, y: null, z: null};
+	this.velocity = {dx: null, dy: null, dz: null};
+
+	this.updatePosition = function(dt) {
+		// would like to do this with some matrix operations but dont really want to import a vector library if unnecessary		
+		this.position.x += this.velocity.dx*dt;
+		this.position.y += ( this.velocity.dy*dt + .5*G*dt*dt );
+		this.position.z += this.velocity.dz*dt;
+
+		this.velocity.dy += G*dt;
+
+		if(this.position.y-this.radius <= 0 && this.velocity.dy < 0) {
+			this.velocity.dy = -this.C*this.velocity.dy;
+		}
+
+	}
+
 }

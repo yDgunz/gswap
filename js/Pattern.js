@@ -4,9 +4,9 @@ function Pattern(pattern) {
 	this.beatDuration = pattern.beatDuration;
 	this.throws = pattern.throws;
 
-	/* helpers */
+	/* assumes vanilla siteswap */
 	this.getSiteswap = function () {
-		return this.throws.map( function(a) { return a.siteswap } );
+		return this.throws.map( function(a) { return a[0].siteswap } );
 	}
 
 	this.getNumberOfProps = function () {
@@ -23,13 +23,13 @@ function Pattern(pattern) {
 		var throwIndex = prop.throwIndex;
 		var hand = prop.throwHand;
 		
-		var siteswap = parseInt(this.throws[throwIndex].siteswap[0]);
+		var siteswap = parseInt(this.throws[throwIndex][hand].siteswap[0]);
 
 		//if the siteswap is odd, the throw crosses hands
 		var targetHand = siteswap % 2 == 0 ? hand : (1 - hand);
-		var throwDuration = this.beatDuration*siteswap - this.throws[throwIndex].dwellDuration;
+		var throwDuration = this.beatDuration*siteswap - this.throws[throwIndex][hand].dwellDuration;
 		
-		var catchDwellPath = this.throws[(throwIndex + siteswap) % this.throws.length].dwellPath[targetHand];
+		var catchDwellPath = this.throws[(throwIndex + siteswap) % this.throws.length][targetHand].dwellPath;
 		if ( catchDwellPath.type == "linear" ) {
 			catchPosition = catchDwellPath.path[0];		
 		} else if ( catchDwellPath.type == "circular" ) {
@@ -41,7 +41,7 @@ function Pattern(pattern) {
 				};
 		}
 
-		var throwDwellPath = this.throws[throwIndex].dwellPath[hand];
+		var throwDwellPath = this.throws[throwIndex][hand].dwellPath;
 		if ( throwDwellPath.type == "linear" ) {
 			throwPosition = throwDwellPath.path[throwDwellPath.path.length-1];
 		} else if ( throwDwellPath.type == "circular" ) {
@@ -54,10 +54,10 @@ function Pattern(pattern) {
 		}
 
 		var dy;
-		if ( this.throws[throwIndex].bounces == 0 )  {
+		if ( this.throws[throwIndex][hand].bounces == 0 )  {
 			dy = ( catchPosition.y - throwPosition.y - .5*G*throwDuration*throwDuration ) / throwDuration;
 		} else {
-			dy = get_bounce_v(throwPosition.y, catchPosition.y, throwDuration, (this.throws[throwIndex].forceBounce ? -1 : 1) , .01, .01, .01, this.throws[throwIndex].bounces, G, prop.C, 1000, prop.radius)
+			dy = get_bounce_v(throwPosition.y, catchPosition.y, throwDuration, (this.throws[throwIndex][hand].forceBounce ? -1 : 1) , .01, .01, .01, this.throws[throwIndex][hand].bounces, G, prop.C, 1000, prop.radius)
 		}
 		
 		var velocity = 

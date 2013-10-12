@@ -12,21 +12,29 @@ function Juggler(siteswap) {
 	var pattern = {beatDuration: .3, throws: []};
 	siteswap.split('').map(function(s) {
 		pattern.throws.push(
-				{
-					siteswap: s,
-					bounces: 0,
-					forceBounce: false,
-					dwellDuration: .2,
-					dwellPath:
-						[
+				[
+					{
+						siteswap: s,
+						bounces: 0,
+						forceBounce: false,
+						dwellDuration: .2,
+						dwellPath:
 							{
-								type: "circular",
-								center: {x: .2, y: 1, z: 0},
-								radius: .2,
-								thetaCatch: 0,
-								thetaThrow: Math.PI,
-								ccw: false	
-							},
+								type: "linear",
+								path: 
+									[
+										{x: .3, y: 1, z: 0},
+										{x: .2, y: 1, z: 0},
+										{x: .1, y: 1, z: 0}
+									]
+							}
+					},
+					{
+						siteswap: s,
+						bounces: 0,
+						forceBounce: false,
+						dwellDuration: .2,
+						dwellPath:
 							{
 								type: "circular",
 								center: {x: -.2, y: 1, z: 0},
@@ -35,8 +43,8 @@ function Juggler(siteswap) {
 								thetaThrow: 0,
 								ccw: true	
 							}
-						]
-				}
+					}
+				]
 			);
 	});
 
@@ -60,9 +68,9 @@ function Juggler(siteswap) {
 			var prop = new Prop(.08,.95,hand,this.colors[i%this.colors.length]);
 			
 			prop.throwIndex = this.throwCounter++ % this.pattern.throws.length;
-			prop.throwTime = i*this.pattern.beatDuration + this.pattern.throws[prop.throwIndex].dwellDuration;
-			prop.catchTime = i*this.pattern.beatDuration + this.pattern.beatDuration*this.pattern.throws[prop.throwIndex].siteswap;
-			var dwellPath = this.pattern.throws[prop.throwIndex].dwellPath[hand];
+			prop.throwTime = i*this.pattern.beatDuration + this.pattern.throws[prop.throwIndex][hand].dwellDuration;
+			prop.catchTime = i*this.pattern.beatDuration + this.pattern.beatDuration*this.pattern.throws[prop.throwIndex][hand].siteswap;
+			var dwellPath = this.pattern.throws[prop.throwIndex][hand].dwellPath;
 
 			/* get last position in dwell path (where you throw from)
 			make sure this is a clone of the dwellPath position object! */
@@ -115,12 +123,12 @@ function Juggler(siteswap) {
 
 	this.interpolateDwellPath = function(prop) {
 
-		if ( this.pattern.throws[prop.throwIndex].dwellPath[prop.throwHand].type == "linear" ) {
+		if ( this.pattern.throws[prop.throwIndex][prop.throwHand].dwellPath.type == "linear" ) {
 
 			//get index along dwell path that we're going from
 
-			var dwellPath = this.pattern.throws[prop.throwIndex].dwellPath[prop.throwHand].path;
-			var dwellDuration = this.pattern.throws[prop.throwIndex].dwellDuration;
+			var dwellPath = this.pattern.throws[prop.throwIndex][prop.throwHand].dwellPath.path;
+			var dwellDuration = this.pattern.throws[prop.throwIndex][prop.throwHand].dwellDuration;
 			var dwellCompleted = ( this.juggleTime - ( prop.throwTime - dwellDuration ) ) / dwellDuration;
 
 			var dwellPathIndex = Math.floor( dwellCompleted * ( dwellPath.length-1 ) );
@@ -136,13 +144,13 @@ function Juggler(siteswap) {
 			prop.position.y = p0.y + (p1.y - p0.y)*t;
 			prop.position.z = p0.z + (p1.z - p0.z)*t;
 
-		} else if ( this.pattern.throws[prop.throwIndex].dwellPath[prop.throwHand].type == "circular" ) {
+		} else if ( this.pattern.throws[prop.throwIndex][prop.throwHand].dwellPath.type == "circular" ) {
 
-			var thetaThrow = this.pattern.throws[prop.throwIndex].dwellPath[prop.throwHand].thetaThrow;
-			var thetaCatch = this.pattern.throws[prop.throwIndex].dwellPath[prop.throwHand].thetaCatch;
-			var ccw = this.pattern.throws[prop.throwIndex].dwellPath[prop.throwHand].ccw;
-			var radius = this.pattern.throws[prop.throwIndex].dwellPath[prop.throwHand].radius;
-			var dwellDuration = this.pattern.throws[prop.throwIndex].dwellDuration;
+			var thetaThrow = this.pattern.throws[prop.throwIndex][prop.throwHand].dwellPath.thetaThrow;
+			var thetaCatch = this.pattern.throws[prop.throwIndex][prop.throwHand].dwellPath.thetaCatch;
+			var ccw = this.pattern.throws[prop.throwIndex][prop.throwHand].dwellPath.ccw;
+			var radius = this.pattern.throws[prop.throwIndex][prop.throwHand].dwellPath.radius;
+			var dwellDuration = this.pattern.throws[prop.throwIndex][prop.throwHand].dwellDuration;
 
 			// the calculated dwell angular velocity must match the CCW flag for the hand
 			if ( ccw && thetaThrow < thetaCatch )
@@ -152,7 +160,7 @@ function Juggler(siteswap) {
 
 			var thetaV = ( thetaThrow - thetaCatch )/dwellDuration;
 
-			var center = this.pattern.throws[prop.throwIndex].dwellPath[prop.throwHand].center;
+			var center = this.pattern.throws[prop.throwIndex][prop.throwHand].dwellPath.center;
 			var thetaT = thetaCatch + thetaV*(this.juggleTime - prop.throwTime + dwellDuration);
 
 			prop.position = 
@@ -168,12 +176,12 @@ function Juggler(siteswap) {
 
 	this.getNextThrow = function (prop) {
 		//update hand
-		prop.throwHand = this.pattern.throws[prop.throwIndex].siteswap % 2 == 0 ? prop.throwHand : (1 - prop.throwHand);
+		prop.throwHand = this.pattern.throws[prop.throwIndex][prop.throwHand].siteswap % 2 == 0 ? prop.throwHand : (1 - prop.throwHand);
 		//get new throw index
 		prop.throwIndex = this.throwCounter++ % this.pattern.throws.length;
 		//get the new throw/catch times. using the floor so we can always have them be multiples of the beat duration
-		prop.throwTime = Math.floor(this.juggleTime/this.pattern.beatDuration)*this.pattern.beatDuration+this.pattern.throws[prop.throwIndex].dwellDuration; 
-		prop.catchTime = Math.floor(this.juggleTime/this.pattern.beatDuration)*this.pattern.beatDuration+parseInt(this.pattern.throws[prop.throwIndex].siteswap[0])*this.pattern.beatDuration;
+		prop.throwTime = Math.floor(this.juggleTime/this.pattern.beatDuration)*this.pattern.beatDuration+this.pattern.throws[prop.throwIndex][prop.throwHand].dwellDuration; 
+		prop.catchTime = Math.floor(this.juggleTime/this.pattern.beatDuration)*this.pattern.beatDuration+parseInt(this.pattern.throws[prop.throwIndex][prop.throwHand].siteswap[0])*this.pattern.beatDuration;
 
 		prop.velocity = this.pattern.getThrowVelocity(prop);
 	}

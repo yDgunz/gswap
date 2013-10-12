@@ -2,6 +2,7 @@ var G = -9.8;
 
 function Pattern(pattern) {
 	this.beatDuration = pattern.beatDuration;
+	this.sync = pattern.sync;
 	this.throws = pattern.throws;
 
 	/* assumes vanilla siteswap */

@@ -9,7 +9,7 @@ function Juggler(siteswap) {
 	a.slice(1,a.length-1).split(")(").map(function(b) { console.log(b.split(",")); return b; })
 	*/
 
-	var pattern = {beatDuration: .3, throws: []};
+	var pattern = {beatDuration: .2, sync: false, throws: []};
 	siteswap.split('').map(function(s) {
 		pattern.throws.push(
 				[
@@ -17,28 +17,34 @@ function Juggler(siteswap) {
 						siteswap: s,
 						bounces: 0,
 						forceBounce: false,
-						dwellDuration: .2,
+						dwellDuration: .18,
 						dwellPath:
 							{
-								type: "linear",
+								type: "circular",
+								center: {x: .2, y: 1, z: 0},
+								radius: .1,
+								thetaCatch: 0,
+								thetaThrow: Math.PI,
+								ccw: false
+								/*type: "linear",
 								path: 
 									[
 										{x: .3, y: 1, z: 0},
 										{x: .2, y: 1, z: 0},
 										{x: .1, y: 1, z: 0}
-									]
+									]*/
 							}
 					},
 					{
 						siteswap: s,
 						bounces: 0,
 						forceBounce: false,
-						dwellDuration: .2,
+						dwellDuration: .18,
 						dwellPath:
 							{
 								type: "circular",
 								center: {x: -.2, y: 1, z: 0},
-								radius: .2,
+								radius: .1,
 								thetaCatch: Math.PI,
 								thetaThrow: 0,
 								ccw: true	
@@ -67,9 +73,10 @@ function Juggler(siteswap) {
 			
 			var prop = new Prop(.08,.95,hand,this.colors[i%this.colors.length]);
 			
-			prop.throwIndex = this.throwCounter++ % this.pattern.throws.length;
-			prop.throwTime = i*this.pattern.beatDuration + this.pattern.throws[prop.throwIndex][hand].dwellDuration;
-			prop.catchTime = i*this.pattern.beatDuration + this.pattern.beatDuration*this.pattern.throws[prop.throwIndex][hand].siteswap;
+			prop.throwIndex = this.throwCounter % this.pattern.throws.length;
+
+			prop.throwTime = this.throwCounter*this.pattern.beatDuration*2 + this.pattern.throws[prop.throwIndex][hand].dwellDuration;
+			prop.catchTime = this.throwCounter*this.pattern.beatDuration*2 + this.pattern.beatDuration*this.pattern.throws[prop.throwIndex][hand].siteswap;
 			var dwellPath = this.pattern.throws[prop.throwIndex][hand].dwellPath;
 
 			/* get last position in dwell path (where you throw from)
@@ -91,6 +98,11 @@ function Juggler(siteswap) {
 			this.props.push(prop);
 
 			hand = 1 - hand; // switch hands
+
+			// only increment the throw index counter if the pattern is async or we're on an odd numbered i (meaning an even number of props)
+			if (!this.pattern.sync || i % 2 == 1) {
+				this.throwCounter++;
+			}
 		}
 
 	}

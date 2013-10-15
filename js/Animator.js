@@ -3,7 +3,7 @@ var timeScale = 1;
 
 // 2D rendering var
 var canvas;
-var viewportHeight = 3
+var viewportHeight = 4
 
 // Renderer vars
 var renderMode;
@@ -12,18 +12,129 @@ var camera, scene, renderer;
 var meshes, floor;
 
 // camera vars
-var camTheta = 2.5, camPhi = .4, camRadius = 3;
+var camTheta = 0, camPhi = .4, camRadius = 3;
 
 //mouse vars
 var isMouseDown = false, onMouseDownTheta, onMouseDownPhi, onMouseDownPosition;
 
 var juggler, lastUpdatedTime;
 
+function buildPropInputs() {
+	$('#propInputs').empty();
+	$('#propSelector').empty();
+	for (i = 0; i < getNumberOfProps($('#siteswap').val()); i++) {
+		$('#propSelector').append('<option value="' + i + '">' + (i+1) + '</option>');
+		$('#propInputs').append('<div id="propInputIx' + i + '">\
+			<input id="propRadius' + i + '" value=".05"></input>\
+			<input id="propC' + i + '" value=".95"></input>\
+		</div>');
+	}
+	//hide all prop inputs except the 1st
+	$("[id^=propInputIx]").addClass("hidden");
+	$("#propInputIx0").removeClass("hidden");
+}
+
+function buildThrowInputs() {
+	$('#throwInputs').empty();
+	$('#throwSelector').empty();
+	for (i = 0; i < $('#siteswap').val().length; i++) {
+		$('#throwSelector').append('<option value="' + i + '">' + (i+1) + '</option>');
+		$('#throwInputs').append('<div id="throwInputIx' + i + '">\
+			<div id="throwLeftInputs" style="float:left;width:50%">\
+				<input id="throwLeftDwellDuration' + i + '" value=".2"></input>\
+				<input id="throwLeftBounces' + i + '" value="0"></input>\
+			</div>\
+			<div id="throwRightInputs" style="float:left;width:50%">\
+				<input id="throwRightDwellDuration' + i + '" value=".2"></input>\
+				<input id="throwRightBounces' + i + '" value="0"></input>\
+			</div>\
+		</div>');
+	}
+	//hide all throw inputs except the 1st
+	$("[id^=throwInputIx]").addClass("hidden");
+	$("#throwInputIx0").removeClass("hidden");
+}
+
+function refreshPropInputs() {
+	//hide all props except the selected one
+	$("[id^=propInputIx]").addClass("hidden");
+	$("#propInputIx" + $('#propSelector').val()).removeClass("hidden");
+}
+
+function refreshThrowInputs() {
+	//hide all props except the selected one
+	$("[id^=throwInputIx]").addClass("hidden");
+	$("#throwInputIx" + $('#throwSelector').val()).removeClass("hidden");
+}
+
 function go() {
 	
 	renderMode = $('input:radio[name=renderMode]:checked').val();
 
-	juggler = new Juggler($('#siteswap').val());
+	var siteswap = $('#siteswap').val();
+
+	// if the first character is a parentheses, the pattern is synchronous, else its not
+	var sync = (siteswap[0] == "(" ? true : false);
+
+	var pattern = {beatDuration: parseFloat($('#beatDuration').val()), sync: sync, throws: []};
+
+	var siteswapArray = (sync ? siteswap.slice(1,siteswap.length-1).split(")(") : siteswap.split(''));
+
+	for (var i = 0; i < siteswapArray.length; i++) {
+		var s = siteswapArray[i];
+
+		pattern.throws.push(
+				[
+					{
+						siteswap: (sync ? s.split(",")[0] : s),
+						bounces: parseInt($('#throwLeftBounces' + i).val()),
+						forceBounce: false,
+						dwellDuration: parseFloat($('#throwLeftDwellDuration' + i).val()),
+						dwellPath:
+							{
+								type: "circular",
+								center: {x: -.2, y: 1, z: 0},
+								radius: .1,
+								thetaCatch: Math.PI,
+								thetaThrow: 0,
+								ccw: true
+								/*type: "linear",
+								path: 
+									[
+										{x: .3, y: 1, z: 0},
+										{x: .2, y: 1, z: 0},
+										{x: .1, y: 1, z: 0}
+									]*/
+							}
+					},
+					{
+						siteswap: (sync ? s.split(",")[1] : s),
+						bounces: parseInt($('#throwRightBounces' + i).val()),
+						forceBounce: false,
+						dwellDuration: parseFloat($('#throwRightDwellDuration' + i).val()),
+						dwellPath:
+							{
+								type: "circular",
+								center: {x: .2, y: 1, z: 0},
+								radius: .1,
+								thetaCatch: 0,
+								thetaThrow: Math.PI,
+								ccw: false	
+							}
+					}
+				]
+			);
+	}
+
+	var props = [];
+	$("[id^=propInputIx]").each(function (index) { 
+		props.push({
+			radius: $(this).find("[id^=propRadius]").val(),
+			C: $(this).find("[id^=propC]").val()
+		});
+	});
+
+	juggler = new Juggler(pattern,props);
 	juggler.init();
 
 	lastUpdatedTime = 0;
@@ -195,3 +306,8 @@ function onDocumentMouseUp( event ) {
 function onDocumentMouseWheel( event ) {
 	camRadius -= event.wheelDeltaY*.01;
 }
+
+/* the following runs on page load */
+
+buildPropInputs();
+buildThrowInputs();

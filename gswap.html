@@ -3,6 +3,11 @@
 <head>
 <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
 <script src="js/three.min.js"></script>
+<style>
+	.hidden {
+		display: none;
+	}
+</style>
 <meta charset="utf-8">
 </head>
 <body>
@@ -10,22 +15,27 @@
 <div id="container" style="width:100%">
 
 	<div id="patternInputs" style="float:left;width:20%;">
-		<input id="siteswap" value="5"></input>
+		<input id="siteswap" value="5" onchange="buildPropInputs();buildThrowInputs();"></input>
 		<button id="submit" onclick="go();">Juggle</button><br/>
-		<input type="radio" name="renderMode" value="2D" checked>2D
-		<input type="radio" name="renderMode" value="3D">3D<br/>
-		Zoom
-		<button id="zommIn" onclick="zoom(true);">+</button>
-		<button id="zommOut" onclick="zoom(false);">-</button><br/>
-		Time Scale
-		<button id="speedUp" onclick="adjustSpeed(false);">+</button>
-		<button id="slowDown" onclick="adjustSpeed(true);">-</button>
+		<input id="beatDuration" value=".3"></input><br/>
+		Prop<select id="propSelector" onchange="refreshPropInputs();"></select>
+		<div id="propInputs"></div>
+		Throw<select id="throwSelector" onchange="refreshThrowInputs();"></select>
+		<div id="throwInputs"></div>
 	</div>
 
 	<div id="canvasContainer" style="float:left;width:60%;">
 	</div>
 
 	<div id="renderInputs" style="float:left;width:20%;">
+		<input type="radio" name="renderMode" value="2D" onchange="go();" checked>2D
+		<input type="radio" name="renderMode" value="3D" onchange="go();">3D<br/>
+		Zoom
+		<button id="zommIn" onclick="zoom(true);">+</button>
+		<button id="zommOut" onclick="zoom(false);">-</button><br/>
+		Time Scale
+		<button id="speedUp" onclick="adjustSpeed(false);">+</button>
+		<button id="slowDown" onclick="adjustSpeed(true);">-</button>
 	</div>
 
 </div>

@@ -5,20 +5,6 @@ function Pattern(pattern) {
 	this.sync = pattern.sync;
 	this.throws = pattern.throws;
 
-	/* assumes vanilla siteswap */
-	this.getSiteswap = function () {
-		return this.throws.map( function(a) { return a[0].siteswap } );
-	}
-
-	this.getNumberOfProps = function () {
-		var siteswap = this.getSiteswap();
-		var sum = 0;
-		for (var i = 0; i < siteswap.length; i++) {
-			sum += parseInt(siteswap[i][0]);
-		}
-		return sum / siteswap.length;
-	}
-
 	this.getThrowVelocity = function (prop) {
 
 		var throwIndex = prop.throwIndex;
@@ -27,7 +13,7 @@ function Pattern(pattern) {
 		var siteswap = parseInt(this.throws[throwIndex][hand].siteswap[0]);
 
 		//if the siteswap is odd, the throw crosses hands
-		var targetHand = siteswap % 2 == 0 ? hand : (1 - hand);
+		var targetHand = (!this.sync && siteswap % 2 == 1) || (this.sync && this.throws[throwIndex][hand].siteswap[1] == "x") ? (1 - hand) : hand;
 		var throwDuration = this.beatDuration*siteswap - this.throws[throwIndex][hand].dwellDuration;
 		
 		var catchDwellPath = this.throws[(throwIndex + siteswap) % this.throws.length][targetHand].dwellPath;
@@ -70,6 +56,18 @@ function Pattern(pattern) {
 
 		return velocity;
 	}
+}
+
+function getNumberOfProps(siteswap) {
+	var sum = 0;
+	var length = 0;
+	for (var i = 0; i < siteswap.length; i++) {
+		if(!isNaN(siteswap[i])) {
+			sum += parseInt(siteswap[i]);
+			length++;
+		}
+	}
+	return sum / length;
 }
 
 /* calculate the bounce velocity given the start/end heights - wrote this function a while ago, excuse variable name inconsistency!*/

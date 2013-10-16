@@ -62,8 +62,8 @@ function getNumberOfProps(siteswap) {
 	var sum = 0;
 	var length = 0;
 	for (var i = 0; i < siteswap.length; i++) {
-		if(!isNaN(siteswap[i])) {
-			sum += parseInt(siteswap[i]);
+		if(!isNaN(siteswap[i][0])) {
+			sum += parseInt(siteswap[i][0]);
 			length++;
 		}
 	}

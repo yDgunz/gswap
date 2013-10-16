@@ -1,47 +1,87 @@
 <!doctype html>
 <html>
 <head>
-<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
-<script src="js/three.min.js"></script>
-<style>
-	.hidden {
-		display: none;
-	}
-</style>
-<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	
+	<link href="bootstrap/css/bootstrap.min.css" rel="stylesheet" >
+	<link href="bootstrap/css/bootstrap-responsive.min.css" rel="stylesheet" >
+	
+	<style>
+		.hidden {
+			display: none;
+		}
+		body {
+        	padding-top: 50px; /* 60px to make the container go all the way to the bottom of the topbar */
+      	}
+    
+	</style>
 </head>
 <body>
 
-<div id="container" style="width:100%">
-
-	<div id="patternInputs" style="float:left;width:20%;">
-		<input id="siteswap" value="5" onchange="buildPropInputs();buildThrowInputs();"></input>
-		<button id="submit" onclick="go();">Juggle</button><br/>
-		<input id="beatDuration" value=".3"></input><br/>
-		Prop<select id="propSelector" onchange="refreshPropInputs();"></select>
-		<div id="propInputs"></div>
-		Throw<select id="throwSelector" onchange="refreshThrowInputs();"></select>
-		<div id="throwInputs"></div>
+	<div class="navbar navbar-inverse navbar-fixed-top">
+		<div class="navbar-inner">
+			<div class="container">
+				<a class="brand" href="#">gSwap</a>
+				<div class="nav-collapse collapse">
+					<form class="navbar-form pull-left">
+						<input id="siteswap" type"text" value="5" onchange="buildPropInputs();buildThrowInputs();"></input>
+						<button id="submit" type="submit" class="btn" onclick="go();">Juggle</button>
+					</form>
+					<ul class="nav">											
+						<li><a onclick='$("#patternInputs").toggle("fast");' href="#">Edit Pattern</a></li>
+					</ul>
+					<div class="btn-group pull-right">
+						<button id="btn2d" class="btn active" onclick='renderMode = "2D"; $("#btn2d").addClass("active"); $("#btn3d").removeClass("active"); go();'>2D</button>
+						<button id="btn3d" class="btn" onclick='renderMode = "3D"; $("#btn3d").addClass("active"); $("#btn2d").removeClass("active"); go();'>3D</button>
+					</div>
+				</div><!--/.nav-collapse -->
+			</div>
+		</div>
 	</div>
 
-	<div id="canvasContainer" style="float:left;width:60%;">
-	</div>
+	<div class="container">
 
-	<div id="renderInputs" style="float:left;width:20%;">
-		<input type="radio" name="renderMode" value="2D" onchange="go();" checked>2D
-		<input type="radio" name="renderMode" value="3D" onchange="go();">3D<br/>
-		Zoom
-		<button id="zommIn" onclick="zoom(true);">+</button>
-		<button id="zommOut" onclick="zoom(false);">-</button><br/>
-		Time Scale
-		<button id="speedUp" onclick="adjustSpeed(false);">+</button>
-		<button id="slowDown" onclick="adjustSpeed(true);">-</button>
-	</div>
+		<div id="patternInputs" class="row" style="display:none; position:absolute; background-color:white; border-color:black; border-style:solid; border-width:1px; border-radius: 15px; padding: 15px;">
+			
+			<div id="generalPatternInputsContainer" class="span3">
+				<input id="beatDuration" value=".3"></input>				
+			</div>
 
-</div>
+			<div id="propInputsContainer" class="span3">
+				<select id="propSelector" onchange="refreshPropInputs();"></select>
+				<div id="propInputs"></div>
+			</div>
+
+			<div id="throwInputsContainer" class="span6">
+				<select id="throwSelector" onchange="refreshThrowInputs();"></select>
+				<div id="throwInputs"></div>
+			</div>
+			
+		</div>
+
+		<div class="zoomButtons" style="float:right;">
+			Zoom
+			<div class="btn-group">
+				<button id="zommIn" class="btn" onclick="zoom(true);">+</button>
+				<button id="zommOut" class="btn" onclick="zoom(false);">-</button>
+			</div>
+			Speed
+			<div class="btn-group">
+				<button id="speedUp" class="btn" onclick="adjustSpeed(false);">+</button>
+				<button id="slowDown" class="btn" onclick="adjustSpeed(true);">-</button>
+			</div>
+		</div>
+
+		<div id="canvasContainer">
+		</div>
+
+	</div>
 
 </body>
 
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+<script src="js/three.min.js"></script>
+<script src="bootstrap/js/bootstrap.min.js"></script>
 <script src="js/Prop.js"></script>
 <script src="js/Pattern.js"></script>
 <script src="js/Juggler.js"></script>

@@ -6,13 +6,13 @@ var canvas;
 var viewportHeight = 4
 
 // Renderer vars
-var renderMode;
+var renderMode = '2D';
 
 var camera, scene, renderer;
 var meshes, floor;
 
 // camera vars
-var camTheta = 0, camPhi = .4, camRadius = 3;
+var camTheta = 0, camPhi = .4, camRadius = 4;
 
 //mouse vars
 var isMouseDown = false, onMouseDownTheta, onMouseDownPhi, onMouseDownPosition;
@@ -23,7 +23,7 @@ function buildPropInputs() {
 	$('#propInputs').empty();
 	$('#propSelector').empty();
 	for (i = 0; i < getNumberOfProps($('#siteswap').val()); i++) {
-		$('#propSelector').append('<option value="' + i + '">' + (i+1) + '</option>');
+		$('#propSelector').append('<option value="' + i + '">Prop ' + (i+1) + '</option>');
 		$('#propInputs').append('<div id="propInputIx' + i + '">\
 			<input id="propRadius' + i + '" value=".05"></input>\
 			<input id="propC' + i + '" value=".95"></input>\
@@ -38,16 +38,18 @@ function buildThrowInputs() {
 	$('#throwInputs').empty();
 	$('#throwSelector').empty();
 	for (i = 0; i < $('#siteswap').val().length; i++) {
-		$('#throwSelector').append('<option value="' + i + '">' + (i+1) + '</option>');
+		$('#throwSelector').append('<option value="' + i + '">Throw ' + (i+1) + '</option>');
 		$('#throwInputs').append('<div id="throwInputIx' + i + '">\
-			<div id="throwLeftInputs" style="float:left;width:50%">\
-				<input id="throwLeftDwellDuration' + i + '" value=".2"></input>\
-				<input id="throwLeftBounces' + i + '" value="0"></input>\
-			</div>\
-			<div id="throwRightInputs" style="float:left;width:50%">\
-				<input id="throwRightDwellDuration' + i + '" value=".2"></input>\
-				<input id="throwRightBounces' + i + '" value="0"></input>\
-			</div>\
+				<div id="throwDwellDuration" style="padding:5px;">\
+					<span style="width:20px;float:left;">D</span>\
+					<input id="throwLeftDwellDuration' + i + '" value=".2" style="width:20px;"></input>\
+					<input id="throwRightDwellDuration' + i + '" value=".2" style="width:20px;"></input><br/>\
+				</div>\
+				<div id="throwBounces" style="padding:5px;">\
+					<span style="width:20px;float:left;">B</span>\
+					<input id="throwLeftBounces' + i + '" value="0" style="width:20px;"></input>\
+					<input id="throwRightBounces' + i + '" value="0" style="width:20px;"></input><br/>\
+				</div>\
 		</div>');
 	}
 	//hide all throw inputs except the 1st
@@ -68,8 +70,6 @@ function refreshThrowInputs() {
 }
 
 function go() {
-	
-	renderMode = $('input:radio[name=renderMode]:checked').val();
 
 	var siteswap = $('#siteswap').val();
 

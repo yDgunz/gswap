@@ -25,8 +25,8 @@ function buildPropInputs() {
 	for (i = 0; i < getNumberOfProps($('#siteswap').val()); i++) {
 		$('#propSelector').append('<option value="' + i + '">Prop ' + (i+1) + '</option>');
 		$('#propInputs').append('<div id="propInputIx' + i + '">\
-			<input id="propRadius' + i + '" value=".05"></input>\
-			<input id="propC' + i + '" value=".95"></input>\
+			<div class="form-inline"><span class="span1">Radius</span><input id="propRadius' + i + '" type="text" class="span1" value=".05"></input></div>\
+			<div class="form-inline"><span class="span1">C</span><input id="propC' + i + '" type="text" class="span1" value=".95"></input></div>\
 		</div>');
 	}
 	//hide all prop inputs except the 1st
@@ -40,16 +40,14 @@ function buildThrowInputs() {
 	for (i = 0; i < $('#siteswap').val().length; i++) {
 		$('#throwSelector').append('<option value="' + i + '">Throw ' + (i+1) + '</option>');
 		$('#throwInputs').append('<div id="throwInputIx' + i + '">\
-				<div id="throwDwellDuration" style="padding:5px;">\
-					<span style="width:20px;float:left;">D</span>\
-					<input id="throwLeftDwellDuration' + i + '" value=".2" style="width:20px;"></input>\
-					<input id="throwRightDwellDuration' + i + '" value=".2" style="width:20px;"></input><br/>\
-				</div>\
-				<div id="throwBounces" style="padding:5px;">\
-					<span style="width:20px;float:left;">B</span>\
-					<input id="throwLeftBounces' + i + '" value="0" style="width:20px;"></input>\
-					<input id="throwRightBounces' + i + '" value="0" style="width:20px;"></input><br/>\
-				</div>\
+			<div class="form-inline"><span class="span1">Dwell</span><input id="throwLeftDwellDuration' + i + '" type="text" class="span1" value=".2"></input><input id="throwRightDwellDuration' + i + '" type="text" class="span1" value=".2"></input></div>\
+			<div class="form-inline"><span class="span1">Bounces</span><input id="throwLeftBounces' + i + '" type="text" class="span1" value="0"></input><input id="throwRightBounces' + i + '" type="text" class="span1" value="0"></input></div>\
+			<div class="form-inline"><span class="span1">Force</span><input id="throwLeftForce' + i + '" type="checkbox" class="span1"></input><input id="throwRightForce' + i + '" type="checkbox" class="span1"></input></div>\
+			<div class="form-inline"><span class="span1">Center</span><input id="throwLeftCenter' + i + '" type="text" class="span1" value="-.2,1,0"></input><input id="throwRightCenter' + i + '" type="text" class="span1" value=".2,1,0"></input></div>\
+			<div class="form-inline"><span class="span1">Radius</span><input id="throwLeftRadius' + i + '" type="text" class="span1" value=".1"></input><input id="throwRightRadius' + i + '" type="text" class="span1" value=".1"></input></div>\
+			<div class="form-inline"><span class="span1">&theta; Catch</span><input id="throwLeftThetaCatch' + i + '" type="text" class="span1" value="3.14"></input><input id="throwRightThetaCatch' + i + '" type="text" class="span1" value="0"></input></div>\
+			<div class="form-inline"><span class="span1">&theta; Throw</span><input id="throwLeftThetaThrow' + i + '" type="text" class="span1" value="0"></input><input id="throwRightThetaThrow' + i + '" type="text" class="span1" value="3.14"></input></div>\
+			<div class="form-inline"><span class="span1">CCW</span><input id="throwLeftCCW' + i + '" type="checkbox" class="span1" checked></input><input id="throwRightCCW' + i + '" type="checkbox" class="span1"></input></div>\
 		</div>');
 	}
 	//hide all throw inputs except the 1st
@@ -88,16 +86,16 @@ function go() {
 					{
 						siteswap: (sync ? s.split(",")[0] : s),
 						bounces: parseInt($('#throwLeftBounces' + i).val()),
-						forceBounce: false,
+						forceBounce: $('#throwLeftForce' + i).is(':checked'),
 						dwellDuration: parseFloat($('#throwLeftDwellDuration' + i).val()),
 						dwellPath:
 							{
 								type: "circular",
-								center: {x: -.2, y: 1, z: 0},
-								radius: .1,
-								thetaCatch: Math.PI,
-								thetaThrow: 0,
-								ccw: true
+								center: {x: parseFloat($('#throwLeftCenter' + i).val().split(',')[0]), y: parseFloat($('#throwLeftCenter' + i).val().split(',')[1]), z: parseFloat($('#throwLeftCenter' + i).val().split(',')[2])},
+								radius: parseFloat($('#throwLeftRadius' + i).val()),
+								thetaCatch: parseFloat($('#throwLeftThetaCatch' + i).val()),
+								thetaThrow: parseFloat($('#throwLeftThetaThrow' + i).val()),
+								ccw: $('#throwLeftCCW' + i).is(':checked'),
 								/*type: "linear",
 								path: 
 									[
@@ -110,16 +108,16 @@ function go() {
 					{
 						siteswap: (sync ? s.split(",")[1] : s),
 						bounces: parseInt($('#throwRightBounces' + i).val()),
-						forceBounce: false,
+						forceBounce: $('#throwRightForce' + i).is(':checked'),
 						dwellDuration: parseFloat($('#throwRightDwellDuration' + i).val()),
 						dwellPath:
 							{
 								type: "circular",
-								center: {x: .2, y: 1, z: 0},
-								radius: .1,
-								thetaCatch: 0,
-								thetaThrow: Math.PI,
-								ccw: false	
+								center: {x: parseFloat($('#throwRightCenter' + i).val().split(',')[0]), y: parseFloat($('#throwRightCenter' + i).val().split(',')[1]), z: parseFloat($('#throwRightCenter' + i).val().split(',')[2])},
+								radius: parseFloat($('#throwRightRadius' + i).val()),
+								thetaCatch: parseFloat($('#throwRightThetaCatch' + i).val()),
+								thetaThrow: parseFloat($('#throwRightThetaThrow' + i).val()),
+								ccw: $('#throwRightCCW' + i).is(':checked')
 							}
 					}
 				]
@@ -129,8 +127,8 @@ function go() {
 	var props = [];
 	$("[id^=propInputIx]").each(function (index) { 
 		props.push({
-			radius: $(this).find("[id^=propRadius]").val(),
-			C: $(this).find("[id^=propC]").val()
+			radius: parseFloat($(this).find("[id^=propRadius]").val()),
+			C: parseFloat($(this).find("[id^=propC]").val())
 		});
 	});
 
@@ -156,11 +154,11 @@ function drawScene2D(juggler) {
 	if (lastUpdatedTime == 0) {
 		var $container = $('#canvasContainer');
 		$container.empty();
-		$container.append('<canvas id="myCanvas"></canvas>')[0];
+		$container.append('<canvas id="myCanvas" style="border-width:1px;border-color:black;border-style:solid;"></canvas>')[0];
 		canvas = $('#myCanvas')[0]
 	}
 
-	canvas.height = $(window).height();
+	canvas.height = $(window).height()-100;
 	canvas.width = $('#canvasContainer').width();
 	var context = canvas.getContext('2d');
 
@@ -185,7 +183,7 @@ function drawScene3D(juggler) {
 	if (lastUpdatedTime == 0) {
 
 		var $container = $('#canvasContainer');
-		var width = $('#canvasContainer').width(), height = $(window).height();;
+		var width = $('#canvasContainer').width(), height = $(window).height()-100;
 
 		camera = new THREE.PerspectiveCamera( 75, width / height, 1, 10000 );
 		camera.position.x = camRadius * Math.sin( camTheta ) * Math.cos( camPhi );
@@ -311,3 +309,4 @@ function onDocumentMouseWheel( event ) {
 
 buildPropInputs();
 buildThrowInputs();
+go();

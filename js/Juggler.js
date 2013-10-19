@@ -22,7 +22,7 @@ function Juggler(pattern,propsInput) {
 		var hand = 1; // start with the right hand
 		for (var i = 0; i < numProps; i++) {
 			
-			var prop = new Prop(propsInput[i].radius,propsInput[i].C,hand,this.colors[i%this.colors.length]);
+			var prop = new Prop(propsInput[i].radius,propsInput[i].C,hand,this.colors[i%this.colors.length],propsInput[i].type);
 			
 			prop.throwIndex = Math.floor(this.throwCounter) % this.pattern.throws.length;
 
@@ -48,7 +48,7 @@ function Juggler(pattern,propsInput) {
 
 			prop.velocity = throwVelocity.velocity;
 
-			prop.rotation = {x: 3*Math.PI/2, y: 0, z:0};
+			prop.rotation = $.extend({},this.pattern.throws[prop.throwIndex][hand].throwRotation);
 			prop.rotationVelocity = throwVelocity.rotationVelocity;
 
 			this.props.push(prop);
@@ -93,12 +93,13 @@ function Juggler(pattern,propsInput) {
 
 	this.interpolateDwellPath = function(prop) {
 
+		var dwellDuration = this.pattern.throws[prop.throwIndex][prop.throwHand].dwellDuration;
+
 		if ( this.pattern.throws[prop.throwIndex][prop.throwHand].dwellPath.type == "linear" ) {
 
 			//get index along dwell path that we're going from
 
 			var dwellPath = this.pattern.throws[prop.throwIndex][prop.throwHand].dwellPath.path;
-			var dwellDuration = this.pattern.throws[prop.throwIndex][prop.throwHand].dwellDuration;
 			var dwellCompleted = ( this.juggleTime - ( prop.throwTime - dwellDuration ) ) / dwellDuration;
 
 			var dwellPathIndex = Math.floor( dwellCompleted * ( dwellPath.length-1 ) );
@@ -119,8 +120,7 @@ function Juggler(pattern,propsInput) {
 			var thetaThrow = this.pattern.throws[prop.throwIndex][prop.throwHand].dwellPath.thetaThrow;
 			var thetaCatch = this.pattern.throws[prop.throwIndex][prop.throwHand].dwellPath.thetaCatch;
 			var ccw = this.pattern.throws[prop.throwIndex][prop.throwHand].dwellPath.ccw;
-			var radius = this.pattern.throws[prop.throwIndex][prop.throwHand].dwellPath.radius;
-			var dwellDuration = this.pattern.throws[prop.throwIndex][prop.throwHand].dwellDuration;
+			var radius = this.pattern.throws[prop.throwIndex][prop.throwHand].dwellPath.radius;			
 
 			// the calculated dwell angular velocity must match the CCW flag for the hand
 			if ( ccw && thetaThrow < thetaCatch )
@@ -141,6 +141,16 @@ function Juggler(pattern,propsInput) {
 				};
 
 		}
+
+		var throwRotation = this.pattern.throws[prop.throwIndex][prop.throwHand].throwRotation;
+		var catchRotation = this.pattern.throws[prop.throwIndex][prop.throwHand].catchRotation;
+
+		var rotation = {
+			x: catchRotation.x + (throwRotation.x-catchRotation.x)/dwellDuration*(this.juggleTime - prop.throwTime + dwellDuration), 
+			y: catchRotation.y + (throwRotation.y-catchRotation.y)/dwellDuration*(this.juggleTime - prop.throwTime + dwellDuration),
+			z: catchRotation.z + (throwRotation.z-catchRotation.z)/dwellDuration*(this.juggleTime - prop.throwTime + dwellDuration)};
+
+		prop.rotation = $.extend({},rotation);
 
 	}
 

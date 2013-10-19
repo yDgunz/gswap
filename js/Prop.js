@@ -1,4 +1,4 @@
-function Prop(radius, C, throwHand, color) {
+function Prop(radius, C, throwHand, color, type) {
 
 	/* static attributes */
 	this.radius = radius;
@@ -6,6 +6,7 @@ function Prop(radius, C, throwHand, color) {
 	this.throwHand = throwHand;
 	this.color = color;
 	this.active = false;
+	this.type = type;
 
 	/* dynamic attributes */
 	this.throwIndex = null;

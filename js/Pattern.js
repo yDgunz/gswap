@@ -54,11 +54,15 @@ function Pattern(pattern) {
 				dz: ( catchPosition.z - throwPosition.z ) / throwDuration
 			};
 
+		var catchRotation = this.throws[(throwIndex + siteswap) % this.throws.length][targetHand].catchRotation;
+		var throwRotation = this.throws[throwIndex][hand].throwRotation;
+		var rotations = this.throws[throwIndex][hand].rotations;
+
 		var rotationVelocity = 
 			{
-				dx: this.throws[throwIndex][hand].rotations*2*Math.PI/throwDuration,
-				dy: 0,
-				dz: 0
+				dx: (catchRotation.x - throwRotation.x + 2*Math.PI*rotations.x)/throwDuration,
+				dy: (catchRotation.y - throwRotation.y + 2*Math.PI*rotations.y)/throwDuration,
+				dz: (catchRotation.z - throwRotation.z + 2*Math.PI*rotations.z)/throwDuration
 			};
 
 		return {velocity: velocity, rotationVelocity: rotationVelocity};

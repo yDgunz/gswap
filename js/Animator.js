@@ -25,6 +25,7 @@ function buildPropInputs() {
 	for (i = 0; i < getNumberOfProps($('#siteswap').val()); i++) {
 		$('#propSelector').append('<option value="' + i + '">Prop ' + (i+1) + '</option>');
 		$('#propInputs').append('<div id="propInputIx' + i + '">\
+			<div class="form-inline"><span class="span1">Type</span><select id="propType' + i + '" class="span2"><option value="ball">ball</option><option value"club">club</option></select></div>\
 			<div class="form-inline"><span class="span1">Radius</span><input id="propRadius' + i + '" type="text" class="span1" value=".05"></input></div>\
 			<div class="form-inline"><span class="span1">C</span><input id="propC' + i + '" type="text" class="span1" value=".95"></input></div>\
 		</div>');
@@ -43,7 +44,6 @@ function buildThrowInputs() {
 			<div class="form-inline"><span class="span1">Dwell</span><input id="throwLeftDwellDuration' + i + '" type="text" class="span1" value=".2"></input><input id="throwRightDwellDuration' + i + '" type="text" class="span1" value=".2"></input></div>\
 			<div class="form-inline"><span class="span1">Bounces</span><input id="throwLeftBounces' + i + '" type="text" class="span1" value="0"></input><input id="throwRightBounces' + i + '" type="text" class="span1" value="0"></input></div>\
 			<div class="form-inline"><span class="span1">Force</span><input id="throwLeftForce' + i + '" type="checkbox" class="span1"></input><input id="throwRightForce' + i + '" type="checkbox" class="span1"></input></div>\
-			<div class="form-inline"><span class="span1">Rotations</span><input id="throwLeftRotations' + i + '" type="text" class="span1" value="1"></input><input id="throwRightRotations' + i + '" type="text" class="span1" value="1"></input></div>\
 			<div class="form-inline"><span class="span1">Center</span><input id="throwLeftCenter' + i + '" type="text" class="span1" value="-.2,1,0"></input><input id="throwRightCenter' + i + '" type="text" class="span1" value=".2,1,0"></input></div>\
 			<div class="form-inline"><span class="span1">Radius</span><input id="throwLeftRadius' + i + '" type="text" class="span1" value=".1"></input><input id="throwRightRadius' + i + '" type="text" class="span1" value=".1"></input></div>\
 			<div class="form-inline"><span class="span1">&theta; Catch</span><input id="throwLeftThetaCatch' + i + '" type="text" class="span1" value="3.14"></input><input id="throwRightThetaCatch' + i + '" type="text" class="span1" value="0"></input></div>\
@@ -88,7 +88,9 @@ function go() {
 						siteswap: (sync ? s.split(",")[0] : s),
 						bounces: parseInt($('#throwLeftBounces' + i).val()),
 						forceBounce: $('#throwLeftForce' + i).is(':checked'),
-						rotations: parseInt($('#throwLeftRotations' + i).val()),
+						rotations: {x: 2, y:0, z:0 },
+						catchRotation: {x:3*Math.PI/2, y:0, z:0},
+						throwRotation: {x:3*Math.PI/2-.5, y:0, z:0},
 						dwellDuration: parseFloat($('#throwLeftDwellDuration' + i).val()),
 						dwellPath:
 							{
@@ -111,7 +113,9 @@ function go() {
 						siteswap: (sync ? s.split(",")[1] : s),
 						bounces: parseInt($('#throwRightBounces' + i).val()),
 						forceBounce: $('#throwRightForce' + i).is(':checked'),
-						rotations: parseInt($('#throwRightRotations' + i).val()),
+						rotations: {x: 2, y:0, z:0 },
+						catchRotation: {x:3*Math.PI/2, y:0, z:0},
+						throwRotation: {x:3*Math.PI/2-.5, y:0, z:0},
 						dwellDuration: parseFloat($('#throwRightDwellDuration' + i).val()),
 						dwellPath:
 							{
@@ -131,7 +135,8 @@ function go() {
 	$("[id^=propInputIx]").each(function (index) { 
 		props.push({
 			radius: parseFloat($(this).find("[id^=propRadius]").val()),
-			C: parseFloat($(this).find("[id^=propC]").val())
+			C: parseFloat($(this).find("[id^=propC]").val()),
+			type: $(this).find("[id^=propType]").find(":selected").val()
 		});
 	});
 
@@ -200,25 +205,25 @@ function drawScene3D(juggler) {
 		meshes = [];
 		juggler.props.map(function(prop) {
 
-			/*
-			mesh = new THREE.Mesh( new THREE.SphereGeometry( prop.radius ), 
+			if (prop.type == "ball") {
+				mesh = new THREE.Mesh( new THREE.SphereGeometry( prop.radius ), 
 				new THREE.MeshBasicMaterial( { color: prop.color, wireframe: true } ) );
-			*/
-
-			var geometry1 = new THREE.CylinderGeometry( .02, .015, .2, 5, 4 );
-			var geometry2 = new THREE.CylinderGeometry( .04, .02, .18, 5, 4 );
-			geometry2.vertices.map(function(v) { v.y += .19 });
-			THREE.GeometryUtils.merge(geometry1, geometry2);
-			var geometry3 = new THREE.CylinderGeometry( .02, .04, .15, 5, 4 );
-			geometry3.vertices.map(function(v) { v.y += .355 });
-			THREE.GeometryUtils.merge(geometry1, geometry3);
-			var geometry4 = new THREE.CylinderGeometry( .015, .02, .02, 5, 4 );
-			geometry4.vertices.map(function(v) { v.y -= .11 });
-			THREE.GeometryUtils.merge(geometry1, geometry4);
-			var material = new THREE.MeshBasicMaterial( { color: 0xff0000, wireframe: true } );
-			mesh = new THREE.Mesh( geometry1, material );
-			geometry1.vertices.map(function(v) { v.y -= .19 });
-			scene.add( mesh );
+			} else if (prop.type == "club") {
+				var geometry1 = new THREE.CylinderGeometry( .02, .015, .2, 5, 4 );
+				var geometry2 = new THREE.CylinderGeometry( .04, .02, .18, 5, 4 );
+				geometry2.vertices.map(function(v) { v.y += .19 });
+				THREE.GeometryUtils.merge(geometry1, geometry2);
+				var geometry3 = new THREE.CylinderGeometry( .02, .04, .15, 5, 4 );
+				geometry3.vertices.map(function(v) { v.y += .355 });
+				THREE.GeometryUtils.merge(geometry1, geometry3);
+				var geometry4 = new THREE.CylinderGeometry( .015, .02, .02, 5, 4 );
+				geometry4.vertices.map(function(v) { v.y -= .11 });
+				THREE.GeometryUtils.merge(geometry1, geometry4);
+				geometry1.vertices.map(function(v) { v.y -= .19 }); // move whole club a bit so that center is the fattest point
+				var material = new THREE.MeshBasicMaterial( { color: prop.color, wireframe: true } );
+				mesh = new THREE.Mesh( geometry1, material );				
+			
+			}
 
 			mesh.position.x = prop.position.x;
 			mesh.position.y = prop.position.y;

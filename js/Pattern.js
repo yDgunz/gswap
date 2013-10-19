@@ -54,7 +54,14 @@ function Pattern(pattern) {
 				dz: ( catchPosition.z - throwPosition.z ) / throwDuration
 			};
 
-		return velocity;
+		var rotationVelocity = 
+			{
+				dx: this.throws[throwIndex][hand].rotations*2*Math.PI/throwDuration,
+				dy: 0,
+				dz: 0
+			};
+
+		return {velocity: velocity, rotationVelocity: rotationVelocity};
 	}
 }
 

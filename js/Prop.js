@@ -13,6 +13,8 @@ function Prop(radius, C, throwHand, color) {
 	this.catchTime = null;
 	this.position = {x: null, y: null, z: null};
 	this.velocity = {dx: null, dy: null, dz: null};
+	this.rotation = {x: null, y: null, z: null};
+	this.rotationVelocity = {dx: null, dy: null, dz: null};
 
 	this.updatePosition = function(dt) {
 		// would like to do this with some matrix operations but dont really want to import a vector library if unnecessary		
@@ -25,6 +27,10 @@ function Prop(radius, C, throwHand, color) {
 		if(this.position.y-this.radius <= 0 && this.velocity.dy < 0) {
 			this.velocity.dy = -this.C*this.velocity.dy;
 		}
+
+		this.rotation.x += this.rotationVelocity.dx*dt;
+		this.rotation.y += this.rotationVelocity.dy*dt;
+		this.rotation.z += this.rotationVelocity.dz*dt;
 
 	}
 

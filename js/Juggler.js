@@ -44,7 +44,12 @@ function Juggler(pattern,propsInput) {
 			}
 			
 
-			prop.velocity = this.pattern.getThrowVelocity(prop);
+			var throwVelocity = this.pattern.getThrowVelocity(prop)
+
+			prop.velocity = throwVelocity.velocity;
+
+			prop.rotation = {x: 3*Math.PI/2, y: 0, z:0};
+			prop.rotationVelocity = throwVelocity.rotationVelocity;
 
 			this.props.push(prop);
 
@@ -148,7 +153,9 @@ function Juggler(pattern,propsInput) {
 		prop.throwTime = Math.floor(this.juggleTime/this.pattern.beatDuration)*this.pattern.beatDuration+this.pattern.throws[prop.throwIndex][prop.throwHand].dwellDuration; 
 		prop.catchTime = Math.floor(this.juggleTime/this.pattern.beatDuration)*this.pattern.beatDuration+parseInt(this.pattern.throws[prop.throwIndex][prop.throwHand].siteswap[0])*this.pattern.beatDuration;
 
-		prop.velocity = this.pattern.getThrowVelocity(prop);
+		var throwVelocity = this.pattern.getThrowVelocity(prop);
+		prop.velocity = throwVelocity.velocity;
+		prop.rotationVelocity = throwVelocity.rotationVelocity;
 
 		this.throwCounter += (this.pattern.sync ? .5 : 1)
 	}

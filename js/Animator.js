@@ -6,7 +6,7 @@ var canvas;
 var viewportHeight = 4
 
 // Renderer vars
-var renderMode = '2D';
+var renderMode = '3D';
 
 var camera, scene, renderer;
 var meshes, floor;
@@ -43,6 +43,7 @@ function buildThrowInputs() {
 			<div class="form-inline"><span class="span1">Dwell</span><input id="throwLeftDwellDuration' + i + '" type="text" class="span1" value=".2"></input><input id="throwRightDwellDuration' + i + '" type="text" class="span1" value=".2"></input></div>\
 			<div class="form-inline"><span class="span1">Bounces</span><input id="throwLeftBounces' + i + '" type="text" class="span1" value="0"></input><input id="throwRightBounces' + i + '" type="text" class="span1" value="0"></input></div>\
 			<div class="form-inline"><span class="span1">Force</span><input id="throwLeftForce' + i + '" type="checkbox" class="span1"></input><input id="throwRightForce' + i + '" type="checkbox" class="span1"></input></div>\
+			<div class="form-inline"><span class="span1">Rotations</span><input id="throwLeftRotations' + i + '" type="text" class="span1" value="1"></input><input id="throwRightRotations' + i + '" type="text" class="span1" value="1"></input></div>\
 			<div class="form-inline"><span class="span1">Center</span><input id="throwLeftCenter' + i + '" type="text" class="span1" value="-.2,1,0"></input><input id="throwRightCenter' + i + '" type="text" class="span1" value=".2,1,0"></input></div>\
 			<div class="form-inline"><span class="span1">Radius</span><input id="throwLeftRadius' + i + '" type="text" class="span1" value=".1"></input><input id="throwRightRadius' + i + '" type="text" class="span1" value=".1"></input></div>\
 			<div class="form-inline"><span class="span1">&theta; Catch</span><input id="throwLeftThetaCatch' + i + '" type="text" class="span1" value="3.14"></input><input id="throwRightThetaCatch' + i + '" type="text" class="span1" value="0"></input></div>\
@@ -87,6 +88,7 @@ function go() {
 						siteswap: (sync ? s.split(",")[0] : s),
 						bounces: parseInt($('#throwLeftBounces' + i).val()),
 						forceBounce: $('#throwLeftForce' + i).is(':checked'),
+						rotations: parseInt($('#throwLeftRotations' + i).val()),
 						dwellDuration: parseFloat($('#throwLeftDwellDuration' + i).val()),
 						dwellPath:
 							{
@@ -109,6 +111,7 @@ function go() {
 						siteswap: (sync ? s.split(",")[1] : s),
 						bounces: parseInt($('#throwRightBounces' + i).val()),
 						forceBounce: $('#throwRightForce' + i).is(':checked'),
+						rotations: parseInt($('#throwRightRotations' + i).val()),
 						dwellDuration: parseFloat($('#throwRightDwellDuration' + i).val()),
 						dwellPath:
 							{
@@ -197,12 +200,33 @@ function drawScene3D(juggler) {
 		meshes = [];
 		juggler.props.map(function(prop) {
 
+			/*
 			mesh = new THREE.Mesh( new THREE.SphereGeometry( prop.radius ), 
 				new THREE.MeshBasicMaterial( { color: prop.color, wireframe: true } ) );
+			*/
+
+			var geometry1 = new THREE.CylinderGeometry( .02, .015, .2, 5, 4 );
+			var geometry2 = new THREE.CylinderGeometry( .04, .02, .18, 5, 4 );
+			geometry2.vertices.map(function(v) { v.y += .19 });
+			THREE.GeometryUtils.merge(geometry1, geometry2);
+			var geometry3 = new THREE.CylinderGeometry( .02, .04, .15, 5, 4 );
+			geometry3.vertices.map(function(v) { v.y += .355 });
+			THREE.GeometryUtils.merge(geometry1, geometry3);
+			var geometry4 = new THREE.CylinderGeometry( .015, .02, .02, 5, 4 );
+			geometry4.vertices.map(function(v) { v.y -= .11 });
+			THREE.GeometryUtils.merge(geometry1, geometry4);
+			var material = new THREE.MeshBasicMaterial( { color: 0xff0000, wireframe: true } );
+			mesh = new THREE.Mesh( geometry1, material );
+			geometry1.vertices.map(function(v) { v.y -= .19 });
+			scene.add( mesh );
 
 			mesh.position.x = prop.position.x;
 			mesh.position.y = prop.position.y;
 			mesh.position.z = prop.position.z;
+
+			mesh.rotation.x = prop.rotation.x;
+			mesh.rotation.y = prop.rotation.y;
+			mesh.rotation.z = prop.rotation.z;
 
 			scene.add( mesh );
 			meshes.push(mesh);
@@ -234,8 +258,11 @@ function drawScene3D(juggler) {
 			meshes[i].position.x = juggler.props[i].position.x;
 			meshes[i].position.y = juggler.props[i].position.y;
 			meshes[i].position.z = juggler.props[i].position.z;
-			meshes[i].rotation.x += .01;
-			meshes[i].rotation.y += .01;
+
+			meshes[i].rotation.x = juggler.props[i].rotation.x;
+			meshes[i].rotation.y = juggler.props[i].rotation.y;
+			meshes[i].rotation.z = juggler.props[i].rotation.z;
+            
 		}	
 
 		///update camera

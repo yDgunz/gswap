@@ -72,80 +72,91 @@ function go() {
 
 	var siteswap = $('#siteswap').val();
 
-	// if the first character is a parentheses, the pattern is synchronous, else its not
-	var sync = (siteswap[0] == "(" ? true : false);
+	if (validateSiteswap(siteswap)) {
 
-	var pattern = {beatDuration: parseFloat($('#beatDuration').val()), sync: sync, throws: []};
+		$('#errorMessages').hide();
 
-	var siteswapArray = (sync ? siteswap.slice(1,siteswap.length-1).split(")(") : siteswap.split(''));
+		// if the first character is a parentheses, the pattern is synchronous, else its not
+		var sync = (siteswap[0] == "(" ? true : false);
 
-	for (var i = 0; i < siteswapArray.length; i++) {
-		var s = siteswapArray[i];
+		var pattern = {beatDuration: parseFloat($('#beatDuration').val()), sync: sync, throws: []};
 
-		pattern.throws.push(
-				[
-					{
-						siteswap: (sync ? s.split(",")[0] : s),
-						bounces: parseInt($('#throwLeftBounces' + i).val()),
-						forceBounce: $('#throwLeftForce' + i).is(':checked'),
-						rotations: {x: 2, y:0, z:0 },
-						catchRotation: {x:3*Math.PI/2, y:0, z:0},
-						throwRotation: {x:3*Math.PI/2-.5, y:0, z:0},
-						dwellDuration: parseFloat($('#throwLeftDwellDuration' + i).val()),
-						dwellPath:
-							{
-								type: "circular",
-								center: {x: parseFloat($('#throwLeftCenter' + i).val().split(',')[0]), y: parseFloat($('#throwLeftCenter' + i).val().split(',')[1]), z: parseFloat($('#throwLeftCenter' + i).val().split(',')[2])},
-								radius: parseFloat($('#throwLeftRadius' + i).val()),
-								thetaCatch: parseFloat($('#throwLeftThetaCatch' + i).val()),
-								thetaThrow: parseFloat($('#throwLeftThetaThrow' + i).val()),
-								ccw: $('#throwLeftCCW' + i).is(':checked'),
-								/*type: "linear",
-								path: 
-									[
-										{x: .3, y: 1, z: 0},
-										{x: .2, y: 1, z: 0},
-										{x: .1, y: 1, z: 0}
-									]*/
-							}
-					},
-					{
-						siteswap: (sync ? s.split(",")[1] : s),
-						bounces: parseInt($('#throwRightBounces' + i).val()),
-						forceBounce: $('#throwRightForce' + i).is(':checked'),
-						rotations: {x: 2, y:0, z:0 },
-						catchRotation: {x:3*Math.PI/2, y:0, z:0},
-						throwRotation: {x:3*Math.PI/2-.5, y:0, z:0},
-						dwellDuration: parseFloat($('#throwRightDwellDuration' + i).val()),
-						dwellPath:
-							{
-								type: "circular",
-								center: {x: parseFloat($('#throwRightCenter' + i).val().split(',')[0]), y: parseFloat($('#throwRightCenter' + i).val().split(',')[1]), z: parseFloat($('#throwRightCenter' + i).val().split(',')[2])},
-								radius: parseFloat($('#throwRightRadius' + i).val()),
-								thetaCatch: parseFloat($('#throwRightThetaCatch' + i).val()),
-								thetaThrow: parseFloat($('#throwRightThetaThrow' + i).val()),
-								ccw: $('#throwRightCCW' + i).is(':checked')
-							}
-					}
-				]
-			);
-	}
+		var siteswapArray = (sync ? siteswap.slice(1,siteswap.length-1).split(")(") : siteswap.split(''));
 
-	var props = [];
-	$("[id^=propInputIx]").each(function (index) { 
-		props.push({
-			radius: parseFloat($(this).find("[id^=propRadius]").val()),
-			C: parseFloat($(this).find("[id^=propC]").val()),
-			type: $(this).find("[id^=propType]").find(":selected").val()
+		for (var i = 0; i < siteswapArray.length; i++) {
+			var s = siteswapArray[i];
+
+			pattern.throws.push(
+					[
+						{
+							siteswap: (sync ? s.split(",")[0] : s),
+							bounces: parseInt($('#throwLeftBounces' + i).val()),
+							forceBounce: $('#throwLeftForce' + i).is(':checked'),
+							rotations: {x: 2, y:0, z:0 },
+							catchRotation: {x:3*Math.PI/2, y:0, z:0},
+							throwRotation: {x:3*Math.PI/2-.5, y:0, z:0},
+							dwellDuration: parseFloat($('#throwLeftDwellDuration' + i).val()),
+							dwellPath:
+								{
+									type: "circular",
+									center: {x: parseFloat($('#throwLeftCenter' + i).val().split(',')[0]), y: parseFloat($('#throwLeftCenter' + i).val().split(',')[1]), z: parseFloat($('#throwLeftCenter' + i).val().split(',')[2])},
+									radius: parseFloat($('#throwLeftRadius' + i).val()),
+									thetaCatch: parseFloat($('#throwLeftThetaCatch' + i).val()),
+									thetaThrow: parseFloat($('#throwLeftThetaThrow' + i).val()),
+									ccw: $('#throwLeftCCW' + i).is(':checked'),
+									/*type: "linear",
+									path: 
+										[
+											{x: .3, y: 1, z: 0},
+											{x: .2, y: 1, z: 0},
+											{x: .1, y: 1, z: 0}
+										]*/
+								}
+						},
+						{
+							siteswap: (sync ? s.split(",")[1] : s),
+							bounces: parseInt($('#throwRightBounces' + i).val()),
+							forceBounce: $('#throwRightForce' + i).is(':checked'),
+							rotations: {x: 2, y:0, z:0 },
+							catchRotation: {x:3*Math.PI/2, y:0, z:0},
+							throwRotation: {x:3*Math.PI/2-.5, y:0, z:0},
+							dwellDuration: parseFloat($('#throwRightDwellDuration' + i).val()),
+							dwellPath:
+								{
+									type: "circular",
+									center: {x: parseFloat($('#throwRightCenter' + i).val().split(',')[0]), y: parseFloat($('#throwRightCenter' + i).val().split(',')[1]), z: parseFloat($('#throwRightCenter' + i).val().split(',')[2])},
+									radius: parseFloat($('#throwRightRadius' + i).val()),
+									thetaCatch: parseFloat($('#throwRightThetaCatch' + i).val()),
+									thetaThrow: parseFloat($('#throwRightThetaThrow' + i).val()),
+									ccw: $('#throwRightCCW' + i).is(':checked')
+								}
+						}
+					]
+				);
+		}
+
+		var props = [];
+		$("[id^=propInputIx]").each(function (index) { 
+			props.push({
+				radius: parseFloat($(this).find("[id^=propRadius]").val()),
+				C: parseFloat($(this).find("[id^=propC]").val()),
+				type: $(this).find("[id^=propType]").find(":selected").val()
+			});
 		});
-	});
 
-	juggler = new Juggler(pattern,props);
-	juggler.init();
+		juggler = new Juggler(pattern,props);
+		juggler.init();
 
-	lastUpdatedTime = 0;
+		lastUpdatedTime = 0;
 
-	animate();
+		animate();
+
+	} else {
+
+		$('#errorMessages').text("Invalid siteswap");
+		$('#errorMessages').show();
+
+	}
 }
 
 function zoom(zoomIn) {

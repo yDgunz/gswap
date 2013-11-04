@@ -81,6 +81,25 @@ function getNumberOfProps(siteswap) {
 	return sum / length;
 }
 
+function validateSiteswap(siteswap) {
+	/* no validation for sync siteswap yet, so just always return true */
+	if (siteswap[0] == "(") {
+		return true;
+	} else {
+		/* check if any of the landings collide. if so, invalid siteswap. need to check landings for twice the longest throw just to be sure */
+		landings = [];
+		for (var i = 0; i < Math.max.apply(false,siteswap.split("").map(function (a) {return parseInt(a)} ))*2; i++ ) { 
+			if (landings[i+parseInt(siteswap[i%siteswap.length])]) { 
+				return false;
+			} 
+			else { 
+				landings[i+parseInt(siteswap[i%siteswap.length])] = true 
+			} 
+		}
+		return true;
+	}
+}
+
 /* calculate the bounce velocity given the start/end heights - wrote this function a while ago, excuse variable name inconsistency!*/
 function get_bounce_v(H_1, H_2, T, V_sign, dt, eps, dv, num_bounces, g, C, tries, R) {
 	//this will return the initial velocity for a bounce
